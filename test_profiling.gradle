@@ -39,7 +39,8 @@ ext {
         return o2.testExecutionResult.testName <=> o1.testExecutionResult.testName
     }
     testprofiling_dir = "${project.buildDir.absolutePath}/reports/test_profiling"
-    testprofiling_filename = "${testprofiling_dir}/testsProfiling.csv"
+    testprofiling_filename = "testsProfiling.csv"
+    testprofiling_fullPath = "${testprofiling_dir}/${testprofiling_filename}"
 }
 
 Set<TestExecutionResult> testExecutionResults = [] as Set
@@ -72,7 +73,7 @@ test {
     doLast {
         File reportDir = new File(testprofiling_dir)
         reportDir.mkdirs()
-        File report = new File(testprofiling_filename)
+        File report = new File(testprofiling_fullPath)
         report.delete()
         report << testprofiling_headers
         Map<String, Long> classExecutionTime = testExecutionResults.groupBy { it.testClassName }.collectEntries {
