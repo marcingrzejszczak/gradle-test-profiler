@@ -10,7 +10,7 @@ apply plugin: 'groovy'
 class TestExecutionResult {
     String testClassName
     String testName
-    long testExecutionTime
+    Double testExecutionTime
 }
 
 /**
@@ -20,70 +20,97 @@ class TestExecutionResult {
 @Immutable(knownImmutableClasses = [TestExecutionResult])
 class ReportRow {
     TestExecutionResult testExecutionResult
-    long testClassExecutionTime
-}
-
-ext {
-    testprofiling_separator = '\t'
-    testprofiling_headers = "test class name${testprofiling_separator}test name${testprofiling_separator}test execution time in [s]${testprofiling_separator}test class execution time in [s]\n"
-    testprofiling_comparator = { ReportRow o1, ReportRow o2 ->
-        if (o1.testClassExecutionTime <=> o2.testClassExecutionTime != 0) {
-            return o2.testClassExecutionTime <=> o1.testClassExecutionTime
-        }
-        if (o1.testExecutionResult.testClassName <=> o2.testExecutionResult.testClassName != 0) {
-            return o2.testExecutionResult.testClassName <=> o1.testExecutionResult.testClassName
-        }
-        if (o1.testExecutionResult.testExecutionTime <=> o2.testExecutionResult.testExecutionTime != 0) {
-            return o2.testExecutionResult.testExecutionTime <=> o1.testExecutionResult.testExecutionTime
-        }
-        return o2.testExecutionResult.testName <=> o1.testExecutionResult.testName
-    }
-    testprofiling_dir = "${project.buildDir.absolutePath}/reports/test_profiling"
-    testprofiling_filename = "testsProfiling.csv"
-    testprofiling_fullPath = "${testprofiling_dir}/${testprofiling_filename}"
+    Double testClassExecutionTime
 }
 
 Set<TestExecutionResult> testExecutionResults = [] as Set
 
-test {
-    addTestListener(new TestListener() {
-
-        @Override
-        void beforeSuite(TestDescriptor suite) {
-
+allprojects {
+    project.ext {
+        testprofiling_separator = '\t'
+        testprofiling_headers = "test class name${testprofiling_separator}test name${testprofiling_separator}test execution time in [s]${testprofiling_separator}test class execution time in [s]\n"
+        testprofiling_comparator = { ReportRow o1, ReportRow o2 ->
+            if (o1.testClassExecutionTime <=> o2.testClassExecutionTime != 0) {
+                return o2.testClassExecutionTime <=> o1.testClassExecutionTime
+            }
+            if (o1.testExecutionResult.testClassName <=> o2.testExecutionResult.testClassName != 0) {
+                return o2.testExecutionResult.testClassName <=> o1.testExecutionResult.testClassName
+            }
+            if (o1.testExecutionResult.testExecutionTime <=> o2.testExecutionResult.testExecutionTime != 0) {
+                return o2.testExecutionResult.testExecutionTime <=> o1.testExecutionResult.testExecutionTime
+            }
+            return o2.testExecutionResult.testName <=> o1.testExecutionResult.testName
         }
+        testprofiling_dir = "${project.buildDir.absolutePath}/reports/test_profiling"
+        testprofiling_filename = "testsProfiling.csv"
+        testprofiling_fullPath = "${testprofiling_dir}/${testprofiling_filename}"
+        testprofiling_mergedTestProfilingSummaryDir = "${project.rootDir.absolutePath}/build/reports/test_profiling"
+        testprofiling_mergedTestProfilingSummary = "${testprofiling_mergedTestProfilingSummaryDir}/summary.csv"
+    }
 
-        @Override
-        void afterSuite(TestDescriptor suite, TestResult result) {
+    test {
+        addTestListener(new TestListener() {
 
+            @Override
+            void beforeSuite(TestDescriptor suite) {
+
+            }
+
+            @Override
+            void afterSuite(TestDescriptor suite, TestResult result) {
+
+            }
+
+            @Override
+            void beforeTest(TestDescriptor testDescriptor) {
+
+            }
+
+            @Override
+            void afterTest(TestDescriptor testDescriptor, TestResult result) {
+                testExecutionResults << new TestExecutionResult(testDescriptor.className, testDescriptor.name, ((result.endTime - result.startTime) / 1000) as Double)
+            }
+
+        })
+
+        doLast {
+            File reportDir = new File(testprofiling_dir)
+            reportDir.mkdirs()
+            File report = new File(testprofiling_fullPath)
+            report.delete()
+            report << testprofiling_headers 
+            Map<String, Double> classExecutionTime = testExecutionResults.groupBy { it.testClassName }.collectEntries {
+                [it.key, it.value.sum { it.testExecutionTime } as Double]
+            } as Map<String, Double>
+            String testExecutionResult = testExecutionResults.collect { new ReportRow(it, classExecutionTime[it.testClassName]) }
+                    .sort(testprofiling_comparator)
+                    .collect(rowFromReport()).join('\n')
+            report << testExecutionResult 
+            println "Your tests report is ready at [$report.absolutePath]"
+            
+            File mergedTestProfilingSummaryDir = new File(testprofiling_mergedTestProfilingSummaryDir)
+            mergedTestProfilingSummaryDir.mkdirs()
+            File mergedTestProfilingSummary = new File(testprofiling_mergedTestProfilingSummary)
+            mergedTestProfilingSummary << testExecutionResult << '\n'
         }
+           
+    }
+}
 
-        @Override
-        void beforeTest(TestDescriptor testDescriptor) {
+task sortSummary << {
+    File mergedTestProfilingSummaryDir = new File(project.ext.testprofiling_mergedTestProfilingSummaryDir)
+    File mergedTestProfilingSummary = new File(project.ext.testprofiling_mergedTestProfilingSummary)
+    // mergedTestProfilingSummary << project.ext.testprofiling_headers
+    Set<ReportRow> reportRows = new TreeSet<ReportRow>(project.ext.testprofiling_comparator) 
+    mergedTestProfilingSummary.eachLine {
+        String[] row = it.split(project.ext.testprofiling_separator)
+        reportRows << new ReportRow(new TestExecutionResult(row[0], row[1], row[2] as Double), row[3] as Double)        
+    }
+    mergedTestProfilingSummary.text = reportRows.collect(rowFromReport()).join('\n')
+}
 
-        }
-
-        @Override
-        void afterTest(TestDescriptor testDescriptor, TestResult result) {
-            testExecutionResults << new TestExecutionResult(testDescriptor.className, testDescriptor.name, result.endTime - result.startTime)
-        }
-
-    })
-
-    doLast {
-        File reportDir = new File(testprofiling_dir)
-        reportDir.mkdirs()
-        File report = new File(testprofiling_fullPath)
-        report.delete()
-        report << testprofiling_headers
-        Map<String, Long> classExecutionTime = testExecutionResults.groupBy { it.testClassName }.collectEntries {
-            [it.key, it.value.sum { it.testExecutionTime } as Long]
-        } as Map<String, Long>
-        report << testExecutionResults.collect { new ReportRow(it, classExecutionTime[it.testClassName]) }
-                .sort(testprofiling_comparator)
-                .collect {
-            "${it.testExecutionResult.testClassName}${testprofiling_separator}${it.testExecutionResult.testName}${testprofiling_separator}${it.testExecutionResult.testExecutionTime / 1000}${testprofiling_separator}${it.testClassExecutionTime / 1000}"
-        }.join('\n')
-        println "Your tests report is ready at [$report.absolutePath]"
+Closure<String> rowFromReport() {
+    return { ReportRow reportRow ->
+        "${reportRow.testExecutionResult.testClassName}${testprofiling_separator}${reportRow.testExecutionResult.testName}${testprofiling_separator}${reportRow.testExecutionResult.testExecutionTime}${testprofiling_separator}${reportRow.testClassExecutionTime}"
     }
 }
