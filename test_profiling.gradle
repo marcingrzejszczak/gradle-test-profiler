@@ -1,0 +1,88 @@
+import groovy.transform.Immutable
+
+apply plugin: 'groovy'
+
+/**
+ * @author Adam Chudzik
+ * @author Marcin Grzejszczak
+ */
+@Immutable
+class TestExecutionResult {
+    String testClassName
+    String testName
+    long testExecutionTime
+}
+
+/**
+ * @author Adam Chudzik
+ * @author Marcin Grzejszczak
+ */
+@Immutable(knownImmutableClasses = [TestExecutionResult])
+class ReportRow {
+    TestExecutionResult testExecutionResult
+    long testClassExecutionTime
+}
+
+ext {
+    testprofiling_separator = '\t'
+    testprofiling_headers = "test class name${testprofiling_separator}test name${testprofiling_separator}test execution time in [s]${testprofiling_separator}test class execution time in [s]\n"
+    testprofiling_comparator = { ReportRow o1, ReportRow o2 ->
+        if (o1.testClassExecutionTime <=> o2.testClassExecutionTime != 0) {
+            return o2.testClassExecutionTime <=> o1.testClassExecutionTime
+        }
+        if (o1.testExecutionResult.testClassName <=> o2.testExecutionResult.testClassName != 0) {
+            return o2.testExecutionResult.testClassName <=> o1.testExecutionResult.testClassName
+        }
+        if (o1.testExecutionResult.testExecutionTime <=> o2.testExecutionResult.testExecutionTime != 0) {
+            return o2.testExecutionResult.testExecutionTime <=> o1.testExecutionResult.testExecutionTime
+        }
+        return o2.testExecutionResult.testName <=> o1.testExecutionResult.testName
+    }
+    testprofiling_dir = "${project.buildDir.absolutePath}/reports/test_profiling"
+    testprofiling_filename = "${testprofiling_dir}/testsProfiling.csv"
+}
+
+Set<TestExecutionResult> testExecutionResults = [] as Set
+
+test {
+    addTestListener(new TestListener() {
+
+        @Override
+        void beforeSuite(TestDescriptor suite) {
+
+        }
+
+        @Override
+        void afterSuite(TestDescriptor suite, TestResult result) {
+
+        }
+
+        @Override
+        void beforeTest(TestDescriptor testDescriptor) {
+
+        }
+
+        @Override
+        void afterTest(TestDescriptor testDescriptor, TestResult result) {
+            testExecutionResults << new TestExecutionResult(testDescriptor.className, testDescriptor.name, result.endTime - result.startTime)
+        }
+
+    })
+
+    doLast {
+        File reportDir = new File(testprofiling_dir)
+        reportDir.mkdirs()
+        File report = new File(testprofiling_filename)
+        report.delete()
+        report << testprofiling_headers
+        Map<String, Long> classExecutionTime = testExecutionResults.groupBy { it.testClassName }.collectEntries {
+            [it.key, it.value.sum { it.testExecutionTime } as Long]
+        } as Map<String, Long>
+        report << testExecutionResults.collect { new ReportRow(it, classExecutionTime[it.testClassName]) }
+                .sort(testprofiling_comparator)
+                .collect {
+            "${it.testExecutionResult.testClassName}${testprofiling_separator}${it.testExecutionResult.testName}${testprofiling_separator}${it.testExecutionResult.testExecutionTime / 1000}${testprofiling_separator}${it.testClassExecutionTime / 1000}"
+        }.join('\n')
+        println "Your tests report is ready at [$report.absolutePath]"
+    }
+}
