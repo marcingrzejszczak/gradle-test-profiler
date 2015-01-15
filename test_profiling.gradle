@@ -100,13 +100,14 @@ allprojects {
 task sortSummary << {
     File mergedTestProfilingSummaryDir = new File(project.ext.testprofiling_mergedTestProfilingSummaryDir)
     File mergedTestProfilingSummary = new File(project.ext.testprofiling_mergedTestProfilingSummary)
-    // mergedTestProfilingSummary << project.ext.testprofiling_headers
+    String fileContent = mergedTestProfilingSummary.text
+    mergedTestProfilingSummary.text = project.ext.testprofiling_headers
     Set<ReportRow> reportRows = new TreeSet<ReportRow>(project.ext.testprofiling_comparator) 
-    mergedTestProfilingSummary.eachLine {
+    fileContent.split('\n').each {
         String[] row = it.split(project.ext.testprofiling_separator)
         reportRows << new ReportRow(new TestExecutionResult(row[0], row[1], row[2] as Double), row[3] as Double)        
     }
-    mergedTestProfilingSummary.text = reportRows.collect(rowFromReport()).join('\n')
+    mergedTestProfilingSummary << reportRows.collect(rowFromReport()).join('\n')
 }
 
 Closure<String> rowFromReport() {
