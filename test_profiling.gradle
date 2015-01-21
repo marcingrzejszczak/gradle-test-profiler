@@ -97,8 +97,7 @@ allprojects {
     }
 }
 
-task sortSummary << {
-    File mergedTestProfilingSummaryDir = new File(project.ext.testprofiling_mergedTestProfilingSummaryDir)
+task testsProfileSummaryReport << {
     File mergedTestProfilingSummary = new File(project.ext.testprofiling_mergedTestProfilingSummary)
     String fileContent = mergedTestProfilingSummary.text
     mergedTestProfilingSummary.text = project.ext.testprofiling_headers
