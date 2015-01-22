@@ -15,5 +15,5 @@ if (project.hasProperty('testsProfiling')) {
 Execute
 
 ```
-./gradlew clean build sortSummary -PtestsProfiling
+./gradlew clean build testsProfileSummaryReport -PtestsProfiling
 ```
