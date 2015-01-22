@@ -19,6 +19,7 @@ class TestExecutionResult {
  */
 @Immutable(knownImmutableClasses = [TestExecutionResult])
 class ReportRow {
+    String module
     TestExecutionResult testExecutionResult
     Double testClassExecutionTime
 }
@@ -26,45 +27,48 @@ class ReportRow {
 Set<TestExecutionResult> testExecutionResults = [] as Set
 
 allprojects {
+
     project.ext {
         testprofiling_separator = '\t'
-        testprofiling_headers = "test class name${testprofiling_separator}test name${testprofiling_separator}test execution time in [s]${testprofiling_separator}test class execution time in [s]\n"
+        testprofiling_headers = "module${testprofiling_separator}test class name${testprofiling_separator}test name${testprofiling_separator}test execution time in [s]${testprofiling_separator}test class execution time in [s]\n"
         testprofiling_comparator = { ReportRow o1, ReportRow o2 ->
-            if (o1.testClassExecutionTime <=> o2.testClassExecutionTime != 0) {
-                return o2.testClassExecutionTime <=> o1.testClassExecutionTime
+            if (o1.testExecutionResult.testExecutionTime <=> o2.testExecutionResult.testExecutionTime != 0) {
+                return o2.testExecutionResult.testExecutionTime <=> o1.testExecutionResult.testExecutionTime
             }
             if (o1.testExecutionResult.testClassName <=> o2.testExecutionResult.testClassName != 0) {
                 return o2.testExecutionResult.testClassName <=> o1.testExecutionResult.testClassName
             }
-            if (o1.testExecutionResult.testExecutionTime <=> o2.testExecutionResult.testExecutionTime != 0) {
-                return o2.testExecutionResult.testExecutionTime <=> o1.testExecutionResult.testExecutionTime
+            if (o1.testExecutionResult.testName <=> o2.testExecutionResult.testName != 0) {
+                return o2.testExecutionResult.testName <=> o1.testExecutionResult.testName
             }
-            return o2.testExecutionResult.testName <=> o1.testExecutionResult.testName
+            if (o1.testClassExecutionTime <=> o2.testClassExecutionTime != 0) {
+                return o2.testClassExecutionTime <=> o1.testClassExecutionTime
+            }
+            return o2.module <=> o1.module
+
         }
         testprofiling_dir = "${project.buildDir.absolutePath}/reports/test_profiling"
-        testprofiling_filename = "testsProfiling.csv"
+        testprofiling_filename = "testsProfile.csv"
         testprofiling_fullPath = "${testprofiling_dir}/${testprofiling_filename}"
         testprofiling_mergedTestProfilingSummaryDir = "${project.rootDir.absolutePath}/build/reports/test_profiling"
         testprofiling_mergedTestProfilingSummary = "${testprofiling_mergedTestProfilingSummaryDir}/summary.csv"
     }
 
     test {
+        doFirst {
+            testExecutionResults = [] as Set
+        }
+
         addTestListener(new TestListener() {
 
             @Override
-            void beforeSuite(TestDescriptor suite) {
-
-            }
+            void beforeSuite(TestDescriptor suite) { }
 
             @Override
-            void afterSuite(TestDescriptor suite, TestResult result) {
-
-            }
+            void afterSuite(TestDescriptor suite, TestResult result) { }
 
             @Override
-            void beforeTest(TestDescriptor testDescriptor) {
-
-            }
+            void beforeTest(TestDescriptor testDescriptor) { }
 
             @Override
             void afterTest(TestDescriptor testDescriptor, TestResult result) {
@@ -82,7 +86,7 @@ allprojects {
             Map<String, Double> classExecutionTime = testExecutionResults.groupBy { it.testClassName }.collectEntries {
                 [it.key, it.value.sum { it.testExecutionTime } as Double]
             } as Map<String, Double>
-            String testExecutionResult = testExecutionResults.collect { new ReportRow(it, classExecutionTime[it.testClassName]) }
+            String testExecutionResult = testExecutionResults.collect { new ReportRow(project.path, it, classExecutionTime[it.testClassName]) }
                     .sort(testprofiling_comparator)
                     .collect(rowFromReport()).join('\n')
             report << testExecutionResult 
@@ -104,13 +108,13 @@ task testsProfileSummaryReport << {
     Set<ReportRow> reportRows = new TreeSet<ReportRow>(project.ext.testprofiling_comparator) 
     fileContent.split('\n').each {
         String[] row = it.split(project.ext.testprofiling_separator)
-        reportRows << new ReportRow(new TestExecutionResult(row[0], row[1], row[2] as Double), row[3] as Double)        
+        reportRows << new ReportRow(row[0], new TestExecutionResult(row[1], row[2], row[3] as Double), row[4] as Double)
     }
     mergedTestProfilingSummary << reportRows.collect(rowFromReport()).join('\n')
 }
 
 Closure<String> rowFromReport() {
     return { ReportRow reportRow ->
-        "${reportRow.testExecutionResult.testClassName}${testprofiling_separator}${reportRow.testExecutionResult.testName}${testprofiling_separator}${reportRow.testExecutionResult.testExecutionTime}${testprofiling_separator}${reportRow.testClassExecutionTime}"
+        "${reportRow.module}${testprofiling_separator}${reportRow.testExecutionResult.testClassName}${testprofiling_separator}${reportRow.testExecutionResult.testName}${testprofiling_separator}${reportRow.testExecutionResult.testExecutionTime}${testprofiling_separator}${reportRow.testClassExecutionTime}"
     }
 }
