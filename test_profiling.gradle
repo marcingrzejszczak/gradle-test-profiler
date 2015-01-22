@@ -84,8 +84,9 @@ allprojects {
             report.delete()
             report << testprofiling_headers 
             Map<String, Double> classExecutionTime = testExecutionResults.groupBy { it.testClassName }.collectEntries {
-                [it.key, it.value.sum { it.testExecutionTime } as Double]
+                [it.key, (it.value.sum { it.testExecutionTime } as Double).round(3)]
             } as Map<String, Double>
+
             String testExecutionResult = testExecutionResults.collect { new ReportRow(project.path, it, classExecutionTime[it.testClassName]) }
                     .sort(testprofiling_comparator)
                     .collect(rowFromReport()).join('\n')
