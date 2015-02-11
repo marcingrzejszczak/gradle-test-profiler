@@ -24,7 +24,7 @@ class ReportRow {
     Double testClassExecutionTime
 }
 
-Set<TestExecutionResult> testExecutionResults = [] as Set
+Set<TestExecutionResult> testExecutionResults = Collections.concurrentSet(new HashSet<TestExecutionResult>())
 
 allprojects {
 

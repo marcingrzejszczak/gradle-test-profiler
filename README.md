@@ -6,7 +6,7 @@ For the time being just enter in your project
 
 ```
 if (project.hasProperty('testsProfiling')) {
-    apply from: 'https://raw.githubusercontent.com/marcingrzejszczak/gradle-test-profiler/0.0.2/test_profiling.gradle'
+    apply from: 'https://raw.githubusercontent.com/marcingrzejszczak/gradle-test-profiler/0.0.4/test_profiling.gradle'
 }
 ```
 
