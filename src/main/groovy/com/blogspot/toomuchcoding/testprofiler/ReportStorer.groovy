@@ -16,10 +16,18 @@ class ReportStorer {
 
     private final TestProfilerPluginExtension testProfilerPluginExtension
     private final Project project
+    private final File reportDir
+    private final File mergedTestProfilingSummaryDir
 
-    ReportStorer(TestProfilerPluginExtension testProfilerPluginExtension, Project project) {
+    ReportStorer(TestProfilerPluginExtension testProfilerPluginExtension, Project project, File reportDir, File mergedTestProfilingSummaryDir) {
         this.testProfilerPluginExtension = testProfilerPluginExtension
         this.project = project
+        this.reportDir = reportDir
+        this.mergedTestProfilingSummaryDir = mergedTestProfilingSummaryDir
+    }
+
+    ReportStorer(TestProfilerPluginExtension testProfilerPluginExtension) {
+        this.testProfilerPluginExtension = testProfilerPluginExtension
     }
 
     public void storeReport(Set<TestExecutionResult> testExecutionResults) {
@@ -36,10 +44,10 @@ class ReportStorer {
     }
 
     private void appendTestExecutionResultToMergedTestSummary(String testExecutionResult) {
-        File mergedTestProfilingSummaryDir = new File(testProfilerPluginExtension.mergedSummaryDir)
         mergedTestProfilingSummaryDir.mkdirs()
-        File mergedTestProfilingSummary = new File(testProfilerPluginExtension.mergedSummaryFileName)
+        File mergedTestProfilingSummary = new File(mergedTestProfilingSummaryDir, testProfilerPluginExtension.mergedSummaryFileName)
         mergedTestProfilingSummary << testExecutionResult << '\n'
+        log.debug("Stored [$testExecutionResult] in [$mergedTestProfilingSummary]")
     }
 
     private File appendTestExecutionResultToFile(File report, String testExecutionResult) {
