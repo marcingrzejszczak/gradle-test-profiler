@@ -12,3 +12,5 @@ logs
 .zip
 /out
 *~
+
+atlassian-ide-plugin.xml

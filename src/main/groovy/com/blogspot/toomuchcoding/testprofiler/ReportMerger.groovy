@@ -23,7 +23,7 @@ class ReportMerger extends DefaultTask {
         }
         log.debug("Will store merged test profiling summary in [${mergedTestProfilingSummary}]")
         String fileContent = mergedTestProfilingSummary.text
-        log.debug("Saving file [$mergedTestProfilingSummary] content [$fileContent]")
+        log.trace("Saving file [$mergedTestProfilingSummary] content [$fileContent]")
         mergedTestProfilingSummary.text = getTestProfilerPluginExtension().outputReportHeaders
         Set<ReportRow> reportRows = new TreeSet<ReportRow>(getTestProfilerPluginExtension().comparator as Comparator<ReportRow>)
         appendReportRow(fileContent, reportRows)
