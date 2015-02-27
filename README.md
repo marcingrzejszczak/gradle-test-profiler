@@ -4,6 +4,10 @@
 
 Created with @AChudzik
 
+The idea of this plugin is to perform profiling of your tests. You will be able to see your test
+execution times sorted in the descending manner together with an information about a module
+and the class name from which the test was executed.
+
 ## Since version 0.1.0
 
 ### How to add it
