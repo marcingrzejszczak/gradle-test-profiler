@@ -69,7 +69,7 @@ bintray {
     pkg {
         repo = 'com-blogspot-toomuchcoding'
         name = 'gradle-test-profiler'
-        desc = 'Gradle plugin that profiles your tests. Gives you a CSV file sorted bby tests execution time.'
+        desc = 'Gradle plugin that profiles your tests. Gives you a CSV file sorted by tests execution time.'
         licenses = ['Apache-2.0']
         labels = ['gradle', 'testing']
     }
