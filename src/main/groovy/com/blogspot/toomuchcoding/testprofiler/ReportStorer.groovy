@@ -2,13 +2,15 @@ package com.blogspot.toomuchcoding.testprofiler
 
 import groovy.transform.PackageScope
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.gradle.api.Project
 
 @PackageScope
 @CompileStatic
+@Slf4j
 class ReportStorer {
 
-    protected static final Closure<String> DEFAULT_ROW_FROM_REPORT_CONVERTER = { ReportRow reportRow ->
+    protected static final Closure<String> DEFAULT_ROW_FROM_REPORT_CONVERTER = { TestProfilerPluginExtension testProfilerPluginExtension , ReportRow reportRow ->
         "${reportRow.module}${testProfilerPluginExtension.separator}${reportRow.testExecutionResult.testClassName}${testProfilerPluginExtension.separator}${reportRow.testExecutionResult.testName}${testProfilerPluginExtension.separator}${reportRow.testExecutionResult.testExecutionTime}${testProfilerPluginExtension.separator}${reportRow.testClassExecutionTime}".toString()
     }
 
@@ -21,10 +23,13 @@ class ReportStorer {
     }
 
     public void storeReport(Set<TestExecutionResult> testExecutionResults) {
+        log.debug("All test execution results $testExecutionResults")
         File report = createNewReportFile()
         addHeadersToFile(report)
         Map<String, Double> classExecutionTime = calculateClassExecutionTime(testExecutionResults)
+        log.debug("Calculated class execution time $classExecutionTime")
         String testExecutionResult = buildTestExecutionResult(classExecutionTime, testExecutionResults)
+        log.debug("Test execution result [$testExecutionResult]")
         appendTestExecutionResultToFile(report, testExecutionResult)
         println "Your tests report is ready at [$report.absolutePath]"
         appendTestExecutionResultToMergedTestSummary(testExecutionResult)
@@ -56,9 +61,8 @@ class ReportStorer {
     private String buildTestExecutionResult(Map<String, Double> classExecutionTime, Set<TestExecutionResult> testExecutionResults) {
         return testExecutionResults.collect {
             new ReportRow(project.path, it, classExecutionTime[it.testClassName])
-        }
-        .sort(testProfilerPluginExtension.comparator)
-                .collect(rowFromReport()).join('\n')
+        }.sort(testProfilerPluginExtension.comparator)
+        .collect(rowFromReport()).join('\n')
     }
 
     private Map<String, Double> calculateClassExecutionTime(Set<TestExecutionResult> testExecutionResults) {
@@ -70,6 +74,6 @@ class ReportStorer {
     }
 
     Closure<String> rowFromReport() {
-        return testProfilerPluginExtension.rowFromReport
+        return testProfilerPluginExtension.rowFromReport.curry(testProfilerPluginExtension)
     }
 }

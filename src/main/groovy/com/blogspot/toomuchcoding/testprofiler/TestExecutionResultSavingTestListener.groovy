@@ -30,7 +30,7 @@ class TestExecutionResultSavingTestListener implements TestListener {
     @Override
     void afterTest(TestDescriptor testDescriptor, TestResult result) {
         TestExecutionResult testExecutionResult = new TestExecutionResult(testDescriptor.className, testDescriptor.name, ((result.endTime - result.startTime) / 1000) as Double)
-        log.debug("Gathered Test Execution Result [$testExecutionResult]")
+        log.info("Gathered Test Execution Result [$testExecutionResult]")
         testExecutionResults << testExecutionResult
     }
 }

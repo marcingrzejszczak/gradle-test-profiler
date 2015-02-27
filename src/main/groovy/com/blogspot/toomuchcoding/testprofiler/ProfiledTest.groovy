@@ -1,40 +1,28 @@
 package com.blogspot.toomuchcoding.testprofiler
-
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
+import groovy.util.logging.Slf4j
 import org.gradle.api.tasks.testing.Test
-import org.gradle.api.tasks.testing.TestListener
 
 import java.util.concurrent.ConcurrentHashMap
 
 @PackageScope
 @CompileStatic
+@Slf4j
 class ProfiledTest extends Test {
 
-    private final Set<TestExecutionResult> testExecutionResults = Collections.newSetFromMap(new ConcurrentHashMap<TestExecutionResult, Boolean>())
-    private final TestProfilerPluginExtension testProfilerPluginExtension
+    TestProfilerPluginExtension testProfilerPluginExtension
 
-    ProfiledTest(TestProfilerPluginExtension testProfilerPluginExtension) {
-        this.testProfilerPluginExtension = testProfilerPluginExtension
-        doFirst {
-            testExecutionResults.clear()
-        }
+    ProfiledTest() {
+        Set<TestExecutionResult> testExecutionResults = Collections.newSetFromMap(new ConcurrentHashMap<TestExecutionResult, Boolean>())
         addTestListener(new TestExecutionResultSavingTestListener(testExecutionResults))
-        doLast {
-            new ReportStorer(testProfilerPluginExtension, project).storeReport(testExecutionResults)
-        }
+        doLast storeReport(testExecutionResults)
     }
 
-    protected ProfiledTest(TestProfilerPluginExtension testProfilerPluginExtension,
-                               TestListener testListener,
-                               ReportStorer reportStorer) {
-        this.testProfilerPluginExtension = testProfilerPluginExtension
-        doFirst {
-            testExecutionResults.clear()
-        }
-        addTestListener(testListener)
-        doLast {
-            reportStorer.storeReport(testExecutionResults)
+    private Closure storeReport(Set<TestExecutionResult> testExecutionResults) {
+        return {
+            log.debug("Stored results are $testExecutionResults")
+            new ReportStorer(testProfilerPluginExtension, project).storeReport(testExecutionResults)
         }
     }
 
