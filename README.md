@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/marcingrzejszczak/gradle-test-profiler.svg)](https://travis-ci.org/marcingrzejszczak/gradle-test-profiler)
 [ ![Download](https://api.bintray.com/packages/marcingrzejszczak/com-blogspot-toomuchcoding/gradle-test-profiler/images/download.svg) ](https://bintray.com/marcingrzejszczak/com-blogspot-toomuchcoding/gradle-test-profiler/_latestVersion)
+[![Coverage Status](https://coveralls.io/repos/marcingrzejszczak/gradle-test-profiler/badge.svg)](https://coveralls.io/r/marcingrzejszczak/gradle-test-profiler)
 
 # gradle-test-profiler
 
