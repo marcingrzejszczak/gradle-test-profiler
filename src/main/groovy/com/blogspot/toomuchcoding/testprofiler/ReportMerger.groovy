@@ -32,10 +32,15 @@ class ReportMerger extends DefaultTask {
     }
 
     private void appendReportRow(String fileContent, Set<ReportRow> reportRows) {
-        fileContent.split('\n').findAll { !it.contains(getTestProfilerPluginExtension().getOutputReportHeaders()) }.each { String string ->
+        fileContent.split('\n')
+                .each { String string ->
             String[] row = string.split(getTestProfilerPluginExtension().separator)
             log.debug("Converting row $row")
-            reportRows << new ReportRow(row[0], new TestExecutionResult(row[1], row[2], row[3] as Double), row[4] as Double)
+            try {
+                reportRows << new ReportRow(row[0], new TestExecutionResult(row[1], row[2], row[3] as Double), row[4] as Double)
+            } catch (NumberFormatException e) {
+                log.warn("Exception occurred while trying to parse a report row", e)
+            }
         }
     }
 
