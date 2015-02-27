@@ -3,7 +3,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 
 @PackageScope
@@ -12,12 +12,15 @@ import org.gradle.api.tasks.TaskAction
 class ReportMerger extends DefaultTask {
 
     TestProfilerPluginExtension testProfilerPluginExtension
-    @OutputDirectory File mergedTestProfilingSummaryDir
+    @InputDirectory File mergedTestProfilingSummaryDir
 
     @TaskAction
     void testsProfileSummaryReport() {
-        getMergedTestProfilingSummaryDir().mkdirs()
         File mergedTestProfilingSummary = new File(getMergedTestProfilingSummaryDir(), getTestProfilerPluginExtension().mergedSummaryFileName)
+        if(!mergedTestProfilingSummary.exists()) {
+            log.debug("No test data has been stored - skipping profile summary report creation")
+            return
+        }
         log.debug("Will store merged test profiling summary in [${mergedTestProfilingSummary}]")
         String fileContent = mergedTestProfilingSummary.text
         log.debug("Saving file [$mergedTestProfilingSummary] content [$fileContent]")
