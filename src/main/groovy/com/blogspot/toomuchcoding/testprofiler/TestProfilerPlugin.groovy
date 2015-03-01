@@ -1,5 +1,5 @@
 package com.blogspot.toomuchcoding.testprofiler
-import groovy.transform.PackageScope
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -7,8 +7,8 @@ import org.gradle.api.plugins.JavaPlugin
 
 class TestProfilerPlugin implements Plugin<Project> {
 
-    @PackageScope static final String TEST_PROFILER_EXTENSION = "calculateTestExecutionTime"
-    @PackageScope static final String SUMMARY_REPORT_TASK_NAME = "profileTests"
+    public static final String TEST_PROFILER_EXTENSION = "calculateTestExecutionTime"
+    public static final String SUMMARY_REPORT_TASK_NAME = "profileTests"
 
     void apply(Project project) {
         TestProfilerPluginExtension extension = project.extensions.create(TEST_PROFILER_EXTENSION, TestProfilerPluginExtension)

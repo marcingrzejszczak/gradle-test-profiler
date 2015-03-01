@@ -6,6 +6,7 @@ import groovy.transform.ToString
 @CompileStatic
 @ToString
 class TestProfilerPluginExtension {
+
     /**
      * Separator of columns in the output report
      */
