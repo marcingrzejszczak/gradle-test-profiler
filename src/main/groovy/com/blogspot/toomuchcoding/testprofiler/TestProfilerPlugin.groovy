@@ -7,7 +7,7 @@ import org.gradle.api.plugins.JavaPlugin
 
 class TestProfilerPlugin implements Plugin<Project> {
 
-    public static final String TEST_PROFILER_EXTENSION = "calculateTestExecutionTime"
+    public static final String TEST_PROFILER_EXTENSION = "testprofiler"
     public static final String SUMMARY_REPORT_TASK_NAME = "profileTests"
 
     void apply(Project project) {
