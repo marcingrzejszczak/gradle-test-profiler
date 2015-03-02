@@ -29,7 +29,13 @@ class TestProfilerPlugin implements Plugin<Project> {
         task.dependsOn(JavaPlugin.TEST_TASK_NAME)
         task.conventionMapping.with {
             testProfilerPluginExtension = { extension }
-            mergedTestProfilingSummaryDir = { new File(project.rootDir, extension.mergedSummaryDir) }
+            mergedTestProfilingSummaryDir = { mergedTestProfilingSummaryDir(project, extension) }
         }
+    }
+
+    private File mergedTestProfilingSummaryDir(Project project, TestProfilerPluginExtension extension) {
+        File mergedTestProfilingSummaryDir = new File(project.rootDir, extension.mergedSummaryDir)
+        mergedTestProfilingSummaryDir.mkdirs()
+        return mergedTestProfilingSummaryDir
     }
 }
