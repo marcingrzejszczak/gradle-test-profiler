@@ -9,7 +9,7 @@ class BasicFuncSpec extends IntegrationSpec {
         fork = true //to make stdout assertion work with Gradle 2.x - http://forums.gradle.org/gradle/topics/unable-to-catch-stdout-stderr-when-using-tooling-api-i-gradle-2-x#reply_15357743
     }
 
-    def "should do something"() {
+    def "should create a summary file with report summary"() {
         given:
             copyResources("sample_project", "")
         when:

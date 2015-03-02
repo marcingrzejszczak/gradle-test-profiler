@@ -28,7 +28,7 @@ class TestProfilerPluginExtension {
     Closure<String> rowFromReport = ReportStorer.DEFAULT_ROW_FROM_REPORT_CONVERTER
 
     /**
-     * Base directory where reports will be gathered. The parent of this directory is build dir of the project
+     * Base directory where reports will be gathered. The parent of this directory is the build dir of the project
      */
     String reportOutputDir = "reports/test_profiling"
 
@@ -38,7 +38,7 @@ class TestProfilerPluginExtension {
     String reportOutputCsvFilename = "testsProfile.csv"
 
     /**
-     * Base directory where merged summary of reports will be kept. The parent of directory is the top root project dir
+     * Base directory where merged summary of reports will be kept. The parent of directory is the build dir of the project
      */
     String mergedSummaryDir = "reports/test_profiling"
 
