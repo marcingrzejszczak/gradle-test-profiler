@@ -17,7 +17,7 @@ class TestProfilerPlugin implements Plugin<Project> {
     }
 
     private void modifyTestTasks(Project project, TestProfilerPluginExtension extension) {
-        File mergedTestProfilingSummaryDir = new File(project.rootDir, extension.mergedSummaryDir)
+        File mergedTestProfilingSummaryDir = mergedTestProfilingSummaryDir(project, extension)
         File reportDir = new File(project.buildDir, extension.reportOutputDir)
         new TestTaskModifier(mergedTestProfilingSummaryDir, project, reportDir, extension).modifyCurrentTestTasks()
     }
@@ -34,7 +34,7 @@ class TestProfilerPlugin implements Plugin<Project> {
     }
 
     private File mergedTestProfilingSummaryDir(Project project, TestProfilerPluginExtension extension) {
-        File mergedTestProfilingSummaryDir = new File(project.rootDir, extension.mergedSummaryDir)
+        File mergedTestProfilingSummaryDir = new File(project.buildDir, extension.mergedSummaryDir)
         mergedTestProfilingSummaryDir.mkdirs()
         return mergedTestProfilingSummaryDir
     }
