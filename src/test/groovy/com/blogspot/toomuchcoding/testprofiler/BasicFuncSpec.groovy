@@ -18,5 +18,6 @@ class BasicFuncSpec extends IntegrationSpec {
             result.standardOutput.contains("Your tests report is ready")
         and:
             fileExists("build/reports/test_profiling/summary.csv")
+            fileExists("build/reports/test_profiling/testsProfile.csv")
     }
 }

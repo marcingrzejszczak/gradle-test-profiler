@@ -17,13 +17,11 @@ class TestTaskModifier {
 
     private final TestProfilerPluginExtension testProfilerPluginExtension
     private final Project project
-    private final File reportDir
     private final File mergedTestProfilingSummaryDir
 
-    TestTaskModifier(File mergedTestProfilingSummaryDir,Project project, File reportDir, TestProfilerPluginExtension testProfilerPluginExtension) {
+    TestTaskModifier(File mergedTestProfilingSummaryDir,Project project, TestProfilerPluginExtension testProfilerPluginExtension) {
         this.mergedTestProfilingSummaryDir = mergedTestProfilingSummaryDir
         this.project = project
-        this.reportDir = reportDir
         this.testProfilerPluginExtension = testProfilerPluginExtension
     }
 
@@ -38,7 +36,7 @@ class TestTaskModifier {
                     log.debug("Added test listener for task [$testTask.name]")
                     testTask.doLast {
                         log.debug("Stored results are $testExecutionResults")
-                        new ReportStorer(testProfilerPluginExtension, project, reportDir, mergedTestProfilingSummaryDir).storeReport(testExecutionResults)
+                        new ReportStorer(testProfilerPluginExtension, project, mergedTestProfilingSummaryDir).storeReport(testExecutionResults)
                     }
                     log.debug("Added storing results as last action for task [$testTask.name]")
                 }

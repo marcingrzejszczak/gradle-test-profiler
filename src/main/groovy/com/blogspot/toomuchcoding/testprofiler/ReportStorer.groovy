@@ -19,23 +19,19 @@ class ReportStorer {
     private final File reportDir
     private final File mergedTestProfilingSummaryDir
 
-    ReportStorer(TestProfilerPluginExtension testProfilerPluginExtension, Project project, File reportDir, File mergedTestProfilingSummaryDir) {
+    ReportStorer(TestProfilerPluginExtension testProfilerPluginExtension, Project project, File mergedTestProfilingSummaryDir) {
         this.testProfilerPluginExtension = testProfilerPluginExtension
         this.project = project
         this.reportDir = reportDir
         this.mergedTestProfilingSummaryDir = mergedTestProfilingSummaryDir
     }
 
-    ReportStorer(TestProfilerPluginExtension testProfilerPluginExtension) {
-        this.testProfilerPluginExtension = testProfilerPluginExtension
-    }
-
     public void storeReport(Set<TestExecutionResult> testExecutionResults) {
-        log.debug("All test execution results $testExecutionResults")
+        log.debug("All test execution results [$testExecutionResults]")
         File report = createNewReportFile()
         addHeadersToFile(report)
         Map<String, Double> classExecutionTime = calculateClassExecutionTime(testExecutionResults)
-        log.debug("Calculated class execution time $classExecutionTime")
+        log.debug("Calculated class execution time [$classExecutionTime]")
         String testExecutionResult = buildTestExecutionResult(classExecutionTime, testExecutionResults)
         log.debug("Test execution result [$testExecutionResult]")
         appendTestExecutionResultToFile(report, testExecutionResult)
@@ -43,27 +39,28 @@ class ReportStorer {
         appendTestExecutionResultToMergedTestSummary(testExecutionResult)
     }
 
-    private void appendTestExecutionResultToMergedTestSummary(String testExecutionResult) {
-        mergedTestProfilingSummaryDir.mkdirs()
-        File mergedTestProfilingSummary = new File(mergedTestProfilingSummaryDir, testProfilerPluginExtension.mergedSummaryFileName)
-        mergedTestProfilingSummary << testExecutionResult << '\n'
-        log.debug("Stored [$testExecutionResult] in [$mergedTestProfilingSummary]")
-    }
-
-    private File appendTestExecutionResultToFile(File report, String testExecutionResult) {
-        return report << testExecutionResult
+    private File createNewReportFile() {
+        File report = testProfilerPluginExtension.reportPath
+        log.debug("Creating a new file [$report]")
+        report.delete()
+        report.parentFile.mkdirs()
+        report.createNewFile()
+        return report
     }
 
     private File addHeadersToFile(File report) {
         return report << testProfilerPluginExtension.outputReportHeaders
     }
 
-    private File createNewReportFile() {
-        File reportDir = new File(project.buildDir.absolutePath, testProfilerPluginExtension.reportOutputDir)
-        reportDir.mkdirs()
-        File report = new File(reportDir, testProfilerPluginExtension.reportOutputCsvFilename)
-        report.delete()
-        return report
+    private File appendTestExecutionResultToFile(File report, String testExecutionResult) {
+        return report << testExecutionResult
+    }
+
+    private void appendTestExecutionResultToMergedTestSummary(String testExecutionResult) {
+        File mergedTestProfilingSummary = testProfilerPluginExtension.mergedSummaryPath
+        mergedTestProfilingSummary.parentFile.mkdirs()
+        mergedTestProfilingSummary << testExecutionResult << '\n'
+        log.debug("Stored [$testExecutionResult] in [$mergedTestProfilingSummary]")
     }
 
     private String buildTestExecutionResult(Map<String, Double> classExecutionTime, Set<TestExecutionResult> testExecutionResults) {

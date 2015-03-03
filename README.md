@@ -49,29 +49,35 @@ You have a special section called `testprofiler`
 ```
 testprofiler {
     
-    // Separator of columns in the output report
-    separator = '\t'
-    
-    // Headers in the report
-    outputReportHeaders = "module${separator}test class name${separator}test name${separator}test execution time in [s]${separator}test class execution time in [s]\n"
+    /**
+     * Separator of columns in the output report
+     */
+    String separator = '\t'
 
-    // Closure that will be converted to a Comparator to compare row entries
-    comparator = DefaultTestExecutionComparator.DEFAULT_TEST_EXECUTION_COMPARATOR
+    /**
+     * Headers in the report
+     */
+    String outputReportHeaders = "module${separator}test class name${separator}test name${separator}test execution time in [s]${separator}test class execution time in [s]\n"
 
-    // Closure that converts a reporter row entry to a single String
-    rowFromReport = ReportStorer.DEFAULT_ROW_FROM_REPORT_CONVERTER
+    /**
+     * Closure that will be converted to a Comparator to compare row entries
+     */
+    Closure<Integer> comparator = DefaultTestExecutionComparator.DEFAULT_TEST_EXECUTION_COMPARATOR
 
-    // Base directory where reports will be gathered. The parent of this directory is build dir of the project
-    reportOutputDir = "reports/test_profiling"
+    /**
+     * Closure that converts a reporter row entry to a single String
+     */
+    Closure<String> rowFromReport = ReportStorer.DEFAULT_ROW_FROM_REPORT_CONVERTER
 
-    // Filename of a single report
-    reportOutputCsvFilename = "testsProfile.csv"
+    /**
+     * Path to the report for a module. Defaults to {@code project.buildDir/reports/test_profiling/testsProfile.csv}
+     */
+    File reportPath
 
-    // Base directory where merged summary of reports will be kept. The parent of directory is the top root project dir
-    mergedSummaryDir = "reports/test_profiling"
-
-    // Filename of a merged summary of reports
-    mergedSummaryFileName = "summary.csv"
+    /**
+     * Path to the merged summary of reports. Defaults to {@code project.rootProject.buildDir/reports/test_profiling/summary.csv"
+     */
+    File mergedSummaryPath
 }
 
 ```
