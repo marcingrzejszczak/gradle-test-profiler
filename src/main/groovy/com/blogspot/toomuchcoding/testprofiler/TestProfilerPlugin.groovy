@@ -50,7 +50,7 @@ class TestProfilerPlugin implements Plugin<Project> {
     private void createSummaryReportTask(Project project, TestProfilerPluginExtension extension) {
         Task task = project.tasks.create(SUMMARY_REPORT_TASK_NAME, ReportMerger)
         task.group = 'Verification'
-        task.description = "Combines the reports into a single a file"
+        task.description = "Creates a report of tests execution time"
         task.dependsOn(JavaPlugin.TEST_TASK_NAME)
         task.conventionMapping.with {
             testProfilerPluginExtension = { extension }
