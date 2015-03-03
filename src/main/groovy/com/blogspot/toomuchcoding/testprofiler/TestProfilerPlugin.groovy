@@ -1,35 +1,50 @@
 package com.blogspot.toomuchcoding.testprofiler
-
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
-import groovy.util.logging.Slf4j
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.plugins.JavaPlugin
 
-@Slf4j
+import javax.inject.Inject
+
 @CompileStatic
 class TestProfilerPlugin implements Plugin<Project> {
 
-    public static final String TEST_PROFILER_EXTENSION = "testprofiler"
-    public static final String SUMMARY_REPORT_TASK_NAME = "profileTests"
+    public static final String PROFILE_TESTS_TASK_NAME = "profileTests"
 
     private static final String DEFAULT_REPORTS_FOLDER = '/reports/test_profiling'
     private static final String DEFAULT_SINGLE_REPORT_RELATIVE_PATH = "$DEFAULT_REPORTS_FOLDER/testsProfile.csv"
     private static final String DEFAULT_MERGED_REPORTS_RELATIVE_PATH = "$DEFAULT_REPORTS_FOLDER/summary.csv"
 
+    private TestTaskModifier testTaskModifier
+    private final LoggerProxy loggerProxy
+    private final ExtensionCreator extensionCreator
+
+    @Inject
+    TestProfilerPlugin() {
+        this.loggerProxy = new LoggerProxy()
+        this.extensionCreator = new ExtensionCreator()
+    }
+
+    protected TestProfilerPlugin(TestTaskModifier testTaskModifier, LoggerProxy loggerProxy, ExtensionCreator extensionCreator) {
+        this.testTaskModifier = testTaskModifier
+        this.loggerProxy = loggerProxy
+        this.extensionCreator = extensionCreator
+    }
+
     @CompileStatic(TypeCheckingMode.SKIP)
     void apply(Project project) {
-        TestProfilerPluginExtension extension = project.extensions.create(TEST_PROFILER_EXTENSION, TestProfilerPluginExtension)
+        TestProfilerPluginExtension extension = extensionCreator.createExtension(project)
+        if(!extension.enabled) {
+            return
+        }
         setDefaults(project, extension)
         printExtensionValues(extension)
         modifyTestTasks(project, extension)
         createSummaryReportTask(project, extension)
     }
 
-    void printExtensionValues(TestProfilerPluginExtension testProfilerPluginExtension) {
-        log.debug("Setting up profiling with the following parameters [$testProfilerPluginExtension]")
+    private void printExtensionValues(TestProfilerPluginExtension testProfilerPluginExtension) {
+        loggerProxy.debug("Setting up profiling with the following parameters [$testProfilerPluginExtension]")
     }
 
     private void setDefaults(Project project, TestProfilerPluginExtension testProfilerPluginExtension) {
@@ -46,16 +61,8 @@ class TestProfilerPlugin implements Plugin<Project> {
         new TestTaskModifier(mergedTestProfilingSummaryDir, project, extension).modifyCurrentTestTasks()
     }
 
-    @CompileStatic(TypeCheckingMode.SKIP)
     private void createSummaryReportTask(Project project, TestProfilerPluginExtension extension) {
-        Task task = project.tasks.create(SUMMARY_REPORT_TASK_NAME, ReportMerger)
-        task.group = 'Verification'
-        task.description = "Creates a report of tests execution time"
-        task.dependsOn(JavaPlugin.TEST_TASK_NAME)
-        task.conventionMapping.with {
-            testProfilerPluginExtension = { extension }
-            mergedTestProfilingSummaryFile = { extension.mergedSummaryPath }
-        }
+        new TaskCreator().buildTask(project, extension)
     }
 
     private File mergedTestProfilingSummaryDir(TestProfilerPluginExtension extension) {

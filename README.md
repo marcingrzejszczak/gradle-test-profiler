@@ -48,7 +48,13 @@ You have a special section called `testprofiler`
 
 ```
 testprofiler {
-    
+
+    /**
+     * Should TestProfilerPlugin be enabled? If set to false there will be no modification of any Gradle Test classes
+     * and the task will simply print a message
+     */
+    boolean enabled = true
+
     /**
      * Separator of columns in the output report
      */

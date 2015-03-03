@@ -20,4 +20,8 @@ class BasicFuncSpec extends IntegrationSpec {
             fileExists("build/reports/test_profiling/summary.csv")
             fileExists("build/reports/test_profiling/testsProfile.csv")
     }
+
+    def 'should merge two reports for two separate modules'() {
+
+    }
 }
