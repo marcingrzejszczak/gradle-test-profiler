@@ -1,30 +1,42 @@
 package com.blogspot.toomuchcoding.testprofiler
-
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.InputFile
+import org.gradle.api.Project
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.Optional
 
 @PackageScope
 @CompileStatic
 @Slf4j
-class ReportMerger extends DefaultTask {
+class ReportMergerTask extends DefaultTask {
 
     TestProfilerPluginExtension testProfilerPluginExtension
-    @Optional @InputFile File mergedTestProfilingSummaryFile
+    @OutputFile File mergedTestProfilingSummaryFile
 
     @TaskAction
     void testsProfileSummaryReport() {
-        if (!getMergedTestProfilingSummaryFile()) {
-            log.info("The file [${getMergedTestProfilingSummaryFile()}] doesn't exist so the summary report won't be built")
+        log.debug("Will store merged test profiling summary in [${getMergedTestProfilingSummaryFile()}]")
+        Project rootProject = project.rootProject
+        String fileContent = rootProject.getAllprojects().collect {
+            File report = new File(it.buildDir, getTestProfilerPluginExtension().relativeReportPath.toString())
+            log.debug("Report to collect [$report]")
+            return report
+        }.findAll {
+            it.exists()
+        }.collect {
+            it.text - getTestProfilerPluginExtension().outputReportHeaders
+        }.join('\n')
+        if (!fileContent) {
+            log.info("The reports were empty - sth went wrong")
             return
         }
-        log.debug("Will store merged test profiling summary in [${getMergedTestProfilingSummaryFile()}]")
-        String fileContent = getMergedTestProfilingSummaryFile().text
-        log.trace("Saving file [${getMergedTestProfilingSummaryFile()}] content [$fileContent]")
+        storeCollectedReport(fileContent)
+    }
+
+    private void storeCollectedReport(String fileContent) {
+        log.info("Saving file [${getMergedTestProfilingSummaryFile()}] content [$fileContent]")
         getMergedTestProfilingSummaryFile().text = getTestProfilerPluginExtension().outputReportHeaders
         Set<ReportRow> reportRows = new TreeSet<ReportRow>(getTestProfilerPluginExtension().comparator as Comparator<ReportRow>)
         appendReportRow(fileContent, reportRows)

@@ -15,7 +15,7 @@ class TimeoutFuncSpec extends IntegrationSpec {
         given:
             copyResources(projectName, "")
         when:
-            ExecutionResult result = runTasksWithFailure("profileTests")
+            ExecutionResult result = runTasksWithFailure("build", "profileTests")
         then:
             String stdout = result.standardOutput.toString()
             assertThatTestFailed(stdout, 'foo.CalculatorTest')
@@ -38,7 +38,7 @@ class TimeoutFuncSpec extends IntegrationSpec {
         given:
             copyResources("project_with_multiple_timeouts", "")
         when:
-            ExecutionResult result = runTasksWithFailure("profileTests")
+            ExecutionResult result = runTasksWithFailure("build", "profileTests")
         then:
             result.standardOutput.toString().contains("java.lang.Exception: test timed out after 1 milliseconds")
     }

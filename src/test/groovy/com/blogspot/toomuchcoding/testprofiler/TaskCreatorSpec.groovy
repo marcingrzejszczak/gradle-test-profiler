@@ -12,15 +12,15 @@ class TaskCreatorSpec extends Specification {
 
     def 'should build NoOpTask when plugin is disabled'() {
         when:
-            Task task = taskCreator.buildTask(project, new TestProfilerPluginExtension(enabled: false))
+            Task task = taskCreator.buildReportMergerForProject(project, new TestProfilerPluginExtension(enabled: false))
         then:
             task instanceof NoOpTask
     }
 
     def 'should build ReportMerger when plugin is enabled'() {
         when:
-            Task task = taskCreator.buildTask(project, new TestProfilerPluginExtension())
+            Task task = taskCreator.buildReportMergerForProject(project, new TestProfilerPluginExtension())
         then:
-            task instanceof ReportMerger
+            task instanceof ReportMergerTask
     }
 }

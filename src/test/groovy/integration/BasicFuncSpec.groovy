@@ -1,5 +1,4 @@
 package integration
-
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 
@@ -13,7 +12,7 @@ class BasicFuncSpec extends IntegrationSpec {
         given:
             copyResources("project_without_timeout", "")
         when:
-            ExecutionResult result = runTasksSuccessfully("profileTests")
+            ExecutionResult result = runTasksSuccessfully('build', "profileTests")
         then:
             result.standardOutput.contains("Your tests report is ready")
         and:
@@ -25,7 +24,7 @@ class BasicFuncSpec extends IntegrationSpec {
         given:
             copyResources("multimodule_project_without_timeout", "")
         when:
-            ExecutionResult result = runTasksSuccessfully("profileTests")
+            ExecutionResult result = runTasksSuccessfully('build', "profileTests")
         then:
             result.standardOutput.contains("Your tests report is ready")
         and:

@@ -37,9 +37,23 @@ apply plugin: 'com.blogspot.toomuchcoding.testprofiler'
 It's enough to execute
 
 ```
-./gradlew clean profileTests
+./gradlew clean build profileTests
 
 ```
+
+It's important run both *build* and *profileTests*
+
+### How does it work
+
+What this plugin does is:
+
+  - adds TestExecutionListener that
+    - prints out the time of execution of a test
+    - creates a report for each module with sorted test execution data
+  - if `maxThreshold` is passed:
+    - manipulates the bytcode of tests by adding a JUnit Timeout Rule
+    - for Spock adds GlobalExtension that times out the tests if needed
+  - the `profileTests` task merges all the per-module sorted test execution data into one
 
 
 ### How to configure it
@@ -76,9 +90,9 @@ testprofiler {
         Closure<String> rowFromReport = ReportStorer.DEFAULT_ROW_FROM_REPORT_CONVERTER
 
         /**
-         * Path to the report for a module. Defaults to {@code project.buildDir/reports/test_profiling/testsProfile.csv}
+         * Relative path to the report for a module. Defaults to {@code /reports/test_profiling/testsProfile.csv}
          */
-        File reportPath
+        File relativeReportPath
 
         /**
          * Path to the merged summary of reports. Defaults to {@code project.rootProject.buildDir/reports/test_profiling/summary.csv"

@@ -8,7 +8,7 @@ import org.gradle.api.Project
 @PackageScope
 @CompileStatic
 @Slf4j
-class ReportStorer {
+class ReportStorerTask {
 
     protected static final Closure<String> DEFAULT_ROW_FROM_REPORT_CONVERTER = { TestProfilerPluginExtension testProfilerPluginExtension , ReportRow reportRow ->
         "${reportRow.module}${testProfilerPluginExtension.separator}${reportRow.testExecutionResult.testClassName}${testProfilerPluginExtension.separator}${reportRow.testExecutionResult.testName}${testProfilerPluginExtension.separator}${reportRow.testExecutionResult.testExecutionTime}${testProfilerPluginExtension.separator}${reportRow.testClassExecutionTime}".toString()
@@ -16,14 +16,10 @@ class ReportStorer {
 
     private final TestProfilerPluginExtension testProfilerPluginExtension
     private final Project project
-    private final File reportDir
-    private final File mergedTestProfilingSummaryDir
 
-    ReportStorer(TestProfilerPluginExtension testProfilerPluginExtension, Project project, File mergedTestProfilingSummaryDir) {
+    ReportStorerTask(TestProfilerPluginExtension testProfilerPluginExtension, Project project) {
         this.testProfilerPluginExtension = testProfilerPluginExtension
         this.project = project
-        this.reportDir = reportDir
-        this.mergedTestProfilingSummaryDir = mergedTestProfilingSummaryDir
     }
 
     public void storeReport(Set<TestExecutionResult> testExecutionResults) {
@@ -40,7 +36,7 @@ class ReportStorer {
     }
 
     private File createNewReportFile() {
-        File report = testProfilerPluginExtension.reportPath
+        File report = new File(project.buildDir, testProfilerPluginExtension.relativeReportPath.toString())
         log.debug("Creating a new file [$report]")
         report.delete()
         report.parentFile.mkdirs()

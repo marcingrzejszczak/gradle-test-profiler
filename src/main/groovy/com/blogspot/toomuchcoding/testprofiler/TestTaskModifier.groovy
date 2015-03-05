@@ -36,7 +36,7 @@ class TestTaskModifier {
                     log.debug("Added test listener for task [$testTask.name]")
                     testTask.doLast {
                         log.debug("Stored results are $testExecutionResults")
-                        new ReportStorer(testProfilerPluginExtension, project, mergedTestProfilingSummaryDir).storeReport(testExecutionResults)
+                        new ReportStorerTask(testProfilerPluginExtension, project).storeReport(testExecutionResults)
                     }
                     log.debug("Added storing results as last action for task [$testTask.name]")
                 }

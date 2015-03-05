@@ -58,10 +58,10 @@ class TestProfilerPlugin implements Plugin<Project> {
     }
 
     private void setDefaults(Project project, TestProfilerPluginExtension testProfilerPluginExtension) {
-        if(!testProfilerPluginExtension.reportPath) {
-            testProfilerPluginExtension.reportPath = new File(project.buildDir, DEFAULT_SINGLE_REPORT_RELATIVE_PATH)
+        if (!testProfilerPluginExtension.relativeReportPath) {
+            testProfilerPluginExtension.relativeReportPath = new File(DEFAULT_SINGLE_REPORT_RELATIVE_PATH)
         }
-        if(!testProfilerPluginExtension.mergedSummaryPath) {
+        if (!testProfilerPluginExtension.mergedSummaryPath) {
             testProfilerPluginExtension.mergedSummaryPath = new File(project.rootProject.buildDir, DEFAULT_MERGED_REPORTS_RELATIVE_PATH)
         }
     }
@@ -72,13 +72,14 @@ class TestProfilerPlugin implements Plugin<Project> {
     }
 
     private void createSummaryReportTask(Project project, TestProfilerPluginExtension extension) {
-        new TaskCreator().buildTask(project, extension)
+        new TaskCreator().buildReportMergerForProject(project.rootProject, extension)
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
     private Task createAfterCompilationTestTaskModifier(Project project, TestProfilerPluginExtension extension) {
         AfterCompilationTestTaskModifier testTaskModifier = project.tasks.create(TIMEOUT_ADDER_TESTS_TASK_NAME, AfterCompilationTestTaskModifier)
         testTaskModifier.dependsOn(testCompilationTask(project))
+        project.tasks.getByName(JavaPlugin.TEST_TASK_NAME).dependsOn(testTaskModifier)
         testTaskModifier.conventionMapping.with {
             testProfilerPluginExtension = { extension }
             outputDir = { project.sourceSets.test.output.classesDir }

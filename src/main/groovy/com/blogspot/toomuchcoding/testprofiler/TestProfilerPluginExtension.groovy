@@ -31,12 +31,12 @@ class TestProfilerPluginExtension {
     /**
      * Closure that converts a reporter row entry to a single String
      */
-    Closure<String> rowFromReport = ReportStorer.DEFAULT_ROW_FROM_REPORT_CONVERTER
+    Closure<String> rowFromReport = ReportStorerTask.DEFAULT_ROW_FROM_REPORT_CONVERTER
 
     /**
      * Path to the report for a module. Defaults to {@code project.buildDir/reports/test_profiling/testsProfile.csv}
      */
-    File reportPath
+    File relativeReportPath
 
     /**
      * Path to the merged summary of reports. Defaults to {@code project.rootProject.buildDir/reports/test_profiling/summary.csv"

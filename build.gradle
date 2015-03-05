@@ -47,6 +47,9 @@ sourceSets.main.groovy.srcDirs += ["src/main/java"]
 
 test {
     maxParallelForks = 8
+    testLogging {
+        exceptionFormat = 'full'
+    }
 }
 
 bintrayUpload.dependsOn 'build'
