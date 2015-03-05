@@ -43,7 +43,7 @@ class AfterCompilationTestTaskModifier extends DefaultTask {
     }
 
     private void appendTimeoutRule(BuildBreakerOptions buildBreakerOptions, Test testTask) {
-        new TestClassesModifer(project, buildBreakerOptions).appendRule(testTask)
+        new TestClassesModifier(project, buildBreakerOptions).appendRule(testTask)
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
@@ -70,8 +70,10 @@ class AfterCompilationTestTaskModifier extends DefaultTask {
     }
 
     private void writeClass(Class clazz, ClassPool pool, Test test) {
-        CtClass globalExtension = pool.get(clazz.name)
-        globalExtension.writeFile(test.testClassesDir.absolutePath)
+        CtClass ctClass = pool.get(clazz.name)
+        String outputDirectory = test.testClassesDir.absolutePath
+        ctClass.writeFile(outputDirectory)
+        log.debug("Wrote global extension to [$outputDirectory]")
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
@@ -85,5 +87,6 @@ class AfterCompilationTestTaskModifier extends DefaultTask {
         } else {
             globalExtensions.text = GlobalTimeoutExtension.name
         }
+        log.debug("GlobalExtension in META-INF [$globalExtensions.text]")
     }
 }

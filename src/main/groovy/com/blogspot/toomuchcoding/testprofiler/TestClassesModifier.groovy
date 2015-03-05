@@ -5,10 +5,7 @@ import groovy.io.FileType
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
-import javassist.ClassClassPath
-import javassist.ClassPool
-import javassist.CtClass
-import javassist.CtField
+import javassist.*
 import javassist.bytecode.AnnotationsAttribute
 import javassist.bytecode.ClassFile
 import javassist.bytecode.ConstPool
@@ -21,7 +18,7 @@ import static javassist.bytecode.AnnotationsAttribute.visibleTag
 @PackageScope
 @Slf4j
 @CompileStatic
-class TestClassesModifer {
+class TestClassesModifier {
 
     private static final String CLASS_FILE_EXTENSION = 'class'
     private static final String JUNIT_RULE_FQN = "org.junit.Rule"
@@ -29,13 +26,13 @@ class TestClassesModifer {
     private final Project project
     private final BuildBreakerOptions buildBreakerOptions
 
-    TestClassesModifer(Project project, BuildBreakerOptions buildBreakerOptions) {
+    TestClassesModifier(Project project, BuildBreakerOptions buildBreakerOptions) {
         this.project = project
         this.buildBreakerOptions = buildBreakerOptions
     }
 
     void appendRule(Test test) {
-        log.debug("Appending Timeout rule to test")
+        log.debug("Appending Timeout rule to test [$test]")
         List<String> pathsToLoad = retrieveFqnsOfClasses(test)
         log.debug("PathsToLoad $pathsToLoad")
         GroovyClassLoader groovyClassLoader = new TestTaskBasedGroovyClassLoader(test)
@@ -44,7 +41,9 @@ class TestClassesModifer {
 
     private List<String> retrieveFqnsOfClasses(Test test) {
         List<String> pathsToLoad = []
+        log.debug("TestClassNameSuffixes [$buildBreakerOptions.testClassNameSuffixes], test classes dir [$test.testClassesDir]")
         test.testClassesDir.eachFileRecurse(FileType.FILES) { File file ->
+            log.debug("TestFileName [$file.name]")
             if ( buildBreakerOptions.testClassNameSuffixes.any { file.name.endsWith("${it}.${CLASS_FILE_EXTENSION}") }) {
                 pathsToLoad << createFQNFromFiles(file, test.testClassesDir)
             }
@@ -57,7 +56,11 @@ class TestClassesModifer {
     }
 
     private CtField createTimeoutField(CtClass testClass) {
-        return CtField.make("public org.junit.rules.Timeout ${testClass.simpleName}_timeout = new org.junit.rules.Timeout($buildBreakerOptions.maxTestThreshold);", testClass)
+        return CtField.make("public org.junit.rules.Timeout ${getGeneratedFieldName(testClass)} = new org.junit.rules.Timeout($buildBreakerOptions.maxTestThreshold);", testClass)
+    }
+
+    private String getGeneratedFieldName(CtClass testClass) {
+        return "${testClass.simpleName}_timeout"
     }
 
     private void wrapFieldWithRuleAnnotation(ConstPool constpool, CtField field) {
@@ -73,21 +76,32 @@ class TestClassesModifer {
 
     private void writeFile(Class clazz, Test test) {
         ClassPool pool = ClassPool.getDefault()
-        ConstPool constpool = createConstPool(clazz, pool)        ;
+        ConstPool constpool = createConstPool(clazz, pool)
         CtClass testClass = pool.get(clazz.name)
+        if (theFieldHasBeenAlreadyCreated(testClass)) {
+            return
+        }
         CtField field = createTimeoutField(testClass)
         wrapFieldWithRuleAnnotation(constpool, field)
         testClass.addField(field)
         testClass.writeFile(test.testClassesDir.absolutePath)
     }
 
+    private boolean theFieldHasBeenAlreadyCreated(CtClass testClass) {
+        try {
+            return testClass.getField(getGeneratedFieldName(testClass))
+        } catch (NotFoundException exception) {
+            return false
+        }
+    }
+
     private ConstPool createConstPool(Class clazz, ClassPool pool) {
         ClassClassPath classClassPath = new ClassClassPath(clazz)
         pool.insertClassPath(classClassPath)
         CtClass ctClass = pool.getCtClass(clazz.name)
+        ctClass.defrost()
         ClassFile ccFile = ctClass.getClassFile()
         return ccFile.getConstPool()
     }
-
 
 }
