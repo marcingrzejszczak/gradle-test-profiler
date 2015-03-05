@@ -1,10 +1,12 @@
 package com.blogspot.toomuchcoding.testprofiler
+
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.Optional
 
 @PackageScope
 @CompileStatic
@@ -12,10 +14,14 @@ import org.gradle.api.tasks.TaskAction
 class ReportMerger extends DefaultTask {
 
     TestProfilerPluginExtension testProfilerPluginExtension
-    @InputFile File mergedTestProfilingSummaryFile
+    @Optional @InputFile File mergedTestProfilingSummaryFile
 
     @TaskAction
     void testsProfileSummaryReport() {
+        if (!getMergedTestProfilingSummaryFile()) {
+            log.info("The file [${getMergedTestProfilingSummaryFile()}] doesn't exist so the summary report won't be built")
+            return
+        }
         log.debug("Will store merged test profiling summary in [${getMergedTestProfilingSummaryFile()}]")
         String fileContent = getMergedTestProfilingSummaryFile().text
         log.trace("Saving file [${getMergedTestProfilingSummaryFile()}] content [$fileContent]")

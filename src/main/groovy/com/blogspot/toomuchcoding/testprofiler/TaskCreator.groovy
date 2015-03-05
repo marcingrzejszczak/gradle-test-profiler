@@ -1,5 +1,4 @@
 package com.blogspot.toomuchcoding.testprofiler
-
 import groovy.transform.PackageScope
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -27,10 +26,11 @@ class TaskCreator {
 
     private ReportMerger createReportMerger(Project project, TestProfilerPluginExtension extension) {
         ReportMerger reportMerger = project.tasks.create(PROFILE_TESTS_TASK_NAME, ReportMerger)
+        reportMerger.dependsOn(TestProfilerPlugin.TIMEOUT_ADDER_TESTS_TASK_NAME)
         reportMerger.dependsOn(JavaPlugin.TEST_TASK_NAME)
         reportMerger.conventionMapping.with {
             testProfilerPluginExtension = { extension }
-            mergedTestProfilingSummaryFile = { extension.mergedSummaryPath }
+            if(extension.mergedSummaryPath?.exists()) { mergedTestProfilingSummaryFile = { extension.mergedSummaryPath } }
         }
         return reportMerger
     }

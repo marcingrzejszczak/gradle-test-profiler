@@ -42,4 +42,34 @@ class TestProfilerPluginExtension {
      * Path to the merged summary of reports. Defaults to {@code project.rootProject.buildDir/reports/test_profiling/summary.csv"
      */
     File mergedSummaryPath
+
+    BuildBreakerOptions buildBreakerOptions = new BuildBreakerOptions()
+
+    void buildBreaker(@DelegatesTo(BuildBreakerOptions) Closure closure) {
+        closure.delegate = buildBreakerOptions
+        closure()
+    }
+
+    /**
+     * Additional options for build breaking
+     */
+    static class BuildBreakerOptions {
+
+        /**
+         * Milliseconds after which test execution will be terminated with a fail
+         */
+        Long maxTestThreshold
+
+        /**
+         * List of test class name suffixes (e.g. LoanAmountVerificationTest)
+         */
+        List<String> testClassNameSuffixes = ['Test', 'Should', 'Spec']
+
+        /**
+         * A method to add additional suffixes
+         */
+        void addTestClassNameSuffix(String testClassNameSuffix) {
+            testClassNameSuffixes << testClassNameSuffix
+        }
+    }
 }
