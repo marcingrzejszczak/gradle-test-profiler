@@ -4,7 +4,6 @@ import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 @PackageScope
@@ -13,7 +12,7 @@ import org.gradle.api.tasks.TaskAction
 class ReportMergerTask extends DefaultTask {
 
     TestProfilerPluginExtension testProfilerPluginExtension
-    @OutputFile File mergedTestProfilingSummaryFile
+    File mergedTestProfilingSummaryFile
 
     @TaskAction
     void testsProfileSummaryReport() {
