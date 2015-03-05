@@ -88,7 +88,7 @@ testprofiler {
         /**
          * Additional options for build breaking
          */
-        buildBreakerOptions {
+        buildBreaker {
 
             /**
              * Milliseconds after which test execution will be terminated with a fail
