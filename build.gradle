@@ -17,6 +17,8 @@ apply plugin: 'com.ofg.uptodate'
 apply plugin: 'maven-publish'
 apply plugin: 'groovy'
 
+sourceCompatibility = 1.7
+
 repositories {
     mavenLocal()
     jcenter()
@@ -39,6 +41,9 @@ dependencies {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
     }
 }
+
+sourceSets.main.java.srcDirs = []
+sourceSets.main.groovy.srcDirs += ["src/main/java"]
 
 test {
     maxParallelForks = 8

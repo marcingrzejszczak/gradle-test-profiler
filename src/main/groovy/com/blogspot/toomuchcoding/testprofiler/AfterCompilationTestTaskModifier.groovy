@@ -1,4 +1,5 @@
 package com.blogspot.toomuchcoding.testprofiler
+
 import com.blogspot.toomuchcoding.testprofiler.TestProfilerPluginExtension.BuildBreakerOptions
 import com.blogspot.toomuchcoding.testprofiler.spock.CustomTimeout
 import com.blogspot.toomuchcoding.testprofiler.spock.GlobalTimeoutExtension
