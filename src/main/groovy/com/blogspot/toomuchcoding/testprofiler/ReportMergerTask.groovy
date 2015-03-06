@@ -45,13 +45,14 @@ class ReportMergerTask extends DefaultTask {
 
     private void appendReportRow(String fileContent, Set<ReportRow> reportRows) {
         fileContent.split('\n')
+                .findAll { it }
                 .each { String string ->
             String[] row = string.split(getTestProfilerPluginExtension().separator)
             log.debug("Converting row $row")
             try {
                 reportRows << new ReportRow(row[0], new TestExecutionResult(row[1], row[2], row[3] as Double), row[4] as Double)
             } catch (NumberFormatException e) {
-                log.warn("Exception occurred while trying to parse a report row", e)
+                log.warn("Exception occurred while trying to parse a report row with value [$string]", e)
             }
         }
     }
