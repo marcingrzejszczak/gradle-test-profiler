@@ -100,6 +100,11 @@ testprofiler {
         File mergedSummaryPath
 
         /**
+         * Milliseconds of test execution above which we will store information about the test. Defaults to 0
+         */
+        Integer minTestThreshold = 0
+
+        /**
          * Additional options for build breaking
          */
         buildBreaker {

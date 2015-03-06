@@ -32,7 +32,7 @@ class TestTaskModifier {
                 if (task.name == JavaPlugin.TEST_TASK_NAME) {
                     Set<TestExecutionResult> testExecutionResults = Collections.newSetFromMap(new ConcurrentHashMap<TestExecutionResult, Boolean>())
                     Test testTask = (Test) task
-                    testTask.addTestListener(new TestExecutionResultSavingTestListener(testExecutionResults))
+                    testTask.addTestListener(new TestExecutionResultSavingTestListener(testExecutionResults, testProfilerPluginExtension))
                     log.debug("Added test listener for task [$testTask.name]")
                     testTask.doLast {
                         log.debug("Stored results are $testExecutionResults")

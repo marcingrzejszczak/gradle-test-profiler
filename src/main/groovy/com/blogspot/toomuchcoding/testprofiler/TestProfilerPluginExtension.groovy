@@ -21,10 +21,10 @@ class TestProfilerPluginExtension {
     /**
      * Headers in the report
      */
-    String outputReportHeaders = "module${separator}test class name${separator}test name${separator}test execution time in [s]${separator}test class execution time in [s]\n"
+    String outputReportHeaders = ['module', 'test class name', 'test name', 'test execution time in [s]', 'test class execution time in [s]'].join(separator).concat('\n')
 
     /**
-     * Closure that will be converted to a Comparator to compare row entries
+     * Closure that will be converted to a Comparator to compare row entries - needed to sort rows
      */
     Closure<Integer> comparator = DefaultTestExecutionComparator.DEFAULT_TEST_EXECUTION_COMPARATOR
 
@@ -43,6 +43,11 @@ class TestProfilerPluginExtension {
      */
     File mergedSummaryPath
 
+    /**
+     * Milliseconds of test execution above which we will store information about the test. Defaults to 0
+     */
+    Integer minTestThreshold = 0
+
     BuildBreakerOptions buildBreakerOptions = new BuildBreakerOptions()
 
     void buildBreaker(@DelegatesTo(BuildBreakerOptions) Closure closure) {
@@ -51,14 +56,14 @@ class TestProfilerPluginExtension {
     }
 
     /**
-     * Additional options for build breaking
+     * Options for build breaking
      */
     static class BuildBreakerOptions {
 
         /**
          * Milliseconds after which test execution will be terminated with a fail
          */
-        Long maxTestThreshold
+        Integer maxTestThreshold
 
         /**
          * List of test class name suffixes (e.g. LoanAmountVerificationTest)

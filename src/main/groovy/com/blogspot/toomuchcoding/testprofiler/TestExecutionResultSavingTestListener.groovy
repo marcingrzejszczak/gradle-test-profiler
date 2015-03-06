@@ -13,9 +13,12 @@ import org.gradle.api.tasks.testing.TestResult
 class TestExecutionResultSavingTestListener implements TestListener {
 
     private final Set<TestExecutionResult> testExecutionResults
+    private final TestProfilerPluginExtension testProfilerPluginExtension
 
-    TestExecutionResultSavingTestListener(Set<TestExecutionResult> testExecutionResults) {
+    TestExecutionResultSavingTestListener(Set<TestExecutionResult> testExecutionResults,
+                                          TestProfilerPluginExtension testProfilerPluginExtension) {
         this.testExecutionResults = testExecutionResults
+        this.testProfilerPluginExtension = testProfilerPluginExtension
     }
 
     @Override
@@ -29,8 +32,15 @@ class TestExecutionResultSavingTestListener implements TestListener {
 
     @Override
     void afterTest(TestDescriptor testDescriptor, TestResult result) {
-        TestExecutionResult testExecutionResult = new TestExecutionResult(testDescriptor.className, testDescriptor.name, ((result.endTime - result.startTime) / 1000) as Double)
-        log.info("[TEST-PROFILER] Gathered Test Execution Result [$testExecutionResult]")
-        testExecutionResults << testExecutionResult
+        long executionTimeInMs = result.endTime - result.startTime
+        TestExecutionResult testExecutionResult = new TestExecutionResult(testDescriptor.className, testDescriptor.name, (executionTimeInMs / 1000) as Double)
+        log.info("[TEST-PROFILER] Gathered Test Execution Result [$testExecutionResult] with result [$result]")
+        storeResultIfAboveMinThreshold(executionTimeInMs, testExecutionResult)
+    }
+
+    private void storeResultIfAboveMinThreshold(Long executionTimeInMs, TestExecutionResult testExecutionResult) {
+        if (executionTimeInMs >= testProfilerPluginExtension.minTestThreshold) {
+            testExecutionResults << testExecutionResult
+        }
     }
 }

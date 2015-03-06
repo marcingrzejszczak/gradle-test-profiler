@@ -27,7 +27,7 @@ class AfterCompilationTestTaskModifier extends DefaultTask {
 
     @TaskAction
     void testsProfileSummaryReport() {
-        Long maxThreshold = getTestProfilerPluginExtension().buildBreakerOptions.maxTestThreshold
+        Integer maxThreshold = getTestProfilerPluginExtension().buildBreakerOptions.maxTestThreshold
         if (maxThreshold == null) {
             log.info("No max test threshold has been provided thus no global timeout will be " +
                     "applied for project [$project.name]. Provided threshold was [$maxThreshold]")
@@ -48,7 +48,7 @@ class AfterCompilationTestTaskModifier extends DefaultTask {
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
-    private void addGlobalExtensionToSpock(Test test, Long maxThreshold) {
+    private void addGlobalExtensionToSpock(Test test, Integer maxThreshold) {
         if (!project.plugins.findPlugin('groovy')) {
             log.debug("The project doesn't have Groovy plugin - skipping Spock extension adding")
             return
