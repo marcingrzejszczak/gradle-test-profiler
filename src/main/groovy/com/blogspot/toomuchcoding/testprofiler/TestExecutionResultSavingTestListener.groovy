@@ -41,8 +41,12 @@ class TestExecutionResultSavingTestListener implements TestListener {
         long executionTimeInMs = result.endTime - result.startTime
         TestExecutionResult testExecutionResult = new TestExecutionResult(testDescriptor.className, testDescriptor.name, (executionTimeInMs / 1000) as Double)
         loggerProxy.info("[TEST-PROFILER] Gathered Test Execution Result [$testExecutionResult] with result [$result]")
-        if (minThresholdIsNotSet() || testExecutionTimeIsBelowThreshold(executionTimeInMs)) {
+        if (minThresholdIsNotSet() || testExecutionTimeIsBelowMinThreshold(executionTimeInMs)) {
+            loggerProxy.debug("Min threshold equals [$testProfilerPluginExtension.minTestThreshold] ms and execution time [$executionTimeInMs] ms. Will store the result in the report")
             storeResult(testExecutionResult)
+        }
+        if (testExecutionTimeIsBelowMaxThreshold(executionTimeInMs)) {
+            loggerProxy.debug("Test execution time [$executionTimeInMs] ms if above the max threshold [$testProfilerPluginExtension.minTestThreshold]. Will perform additional logic")
             performAdditionalLogic(testDescriptor, testExecutionResult, executionTimeInMs)
         }
     }
@@ -55,8 +59,12 @@ class TestExecutionResultSavingTestListener implements TestListener {
         return testProfilerPluginExtension.minTestThreshold == null
     }
 
-    private boolean testExecutionTimeIsBelowThreshold(long executionTimeInMs) {
+    private boolean testExecutionTimeIsBelowMinThreshold(long executionTimeInMs) {
         return executionTimeInMs >= testProfilerPluginExtension.minTestThreshold
+    }
+
+    private boolean testExecutionTimeIsBelowMaxThreshold(long executionTimeInMs) {
+        return executionTimeInMs >= testProfilerPluginExtension.buildBreakerOptions.maxTestThreshold
     }
 
     private void performAdditionalLogic(TestDescriptor testDescriptor, TestExecutionResult testExecutionResult, long executionTimeInMs) {
@@ -65,7 +73,7 @@ class TestExecutionResultSavingTestListener implements TestListener {
         Closure<String> action = whatToDo.action
         if (buildBreakerOptions.shouldDisplayWarning()) {
             loggerProxy.warn( whatToDo.doNothing() ?
-                    String.format(DEFAULT_WARN_MSG, project.path, testExecutionResult.testName, testExecutionResult.testClassName, executionTimeInMs, testProfilerPluginExtension.minTestThreshold) :
+                    String.format(DEFAULT_WARN_MSG, project.path, testExecutionResult.testName, testExecutionResult.testClassName, executionTimeInMs, testProfilerPluginExtension.buildBreakerOptions.maxTestThreshold) :
                     action.curry(testDescriptor, testExecutionResult).call() as String)
         } else if (buildBreakerOptions.shouldAct()) {
             loggerProxy.debug("Test execution time was exceeded - will perform custom logic defined by the user")
