@@ -19,7 +19,7 @@ import org.gradle.api.tasks.testing.Test
 @PackageScope
 @CompileStatic
 @Slf4j
-class AfterCompilationTestTaskModifier extends DefaultTask {
+class AddTimeoutTask extends DefaultTask {
 
     TestProfilerPluginExtension testProfilerPluginExtension
     @OutputDirectory File outputDir
@@ -27,6 +27,10 @@ class AfterCompilationTestTaskModifier extends DefaultTask {
     @TaskAction
     void testsProfileSummaryReport() {
         Integer maxThreshold = getTestProfilerPluginExtension().buildBreakerOptions.maxTestThreshold
+        if (!getTestProfilerPluginExtension().enabled) {
+            log.info("Can't add timeout since the testprofiler extension is disabled")
+            return
+        }
         if (maxThreshold == null) {
             log.info("No max test threshold has been provided thus no global timeout will be " +
                     "applied for project [$project.name]. Provided threshold was [$maxThreshold]")
@@ -36,6 +40,10 @@ class AfterCompilationTestTaskModifier extends DefaultTask {
             log.debug("Won't add global timeout - user picked other approach")
             return
         }
+        addTimeouts(maxThreshold)
+    }
+
+    private void addTimeouts(int maxThreshold) {
         log.info("Adding global Timeout rule for project [$project.name]")
         this.project.plugins.withType(JavaPlugin) {
             this.project.tasks.withType(Test) { Task task ->

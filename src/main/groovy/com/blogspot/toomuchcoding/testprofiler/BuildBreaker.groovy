@@ -29,14 +29,14 @@ class BuildBreaker {
 
     @CompileStatic(TypeCheckingMode.SKIP)
     private Task createAfterCompilationTestTaskModifier() {
-        AfterCompilationTestTaskModifier testTaskModifier = project.tasks.create(TestProfilerPlugin.TIMEOUT_ADDER_TESTS_TASK_NAME, AfterCompilationTestTaskModifier)
-        testTaskModifier.dependsOn(testCompilationTask(project))
-        project.tasks.getByName(JavaPlugin.TEST_TASK_NAME).dependsOn(testTaskModifier)
-        testTaskModifier.conventionMapping.with {
+        AddTimeoutTask addTimeoutTask = project.tasks.create(TestProfilerPlugin.TIMEOUT_ADDER_TESTS_TASK_NAME, AddTimeoutTask)
+        addTimeoutTask.dependsOn(testCompilationTask(project))
+        project.tasks.getByName(JavaPlugin.TEST_TASK_NAME).dependsOn(addTimeoutTask)
+        addTimeoutTask.conventionMapping.with {
             testProfilerPluginExtension = { pluginExtension }
             outputDir = { project.sourceSets.test.output.classesDir }
         }
-        return testTaskModifier
+        return addTimeoutTask
     }
 
     private Object testCompilationTask(Project project) {
