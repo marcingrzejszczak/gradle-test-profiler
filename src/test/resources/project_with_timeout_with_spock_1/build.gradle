@@ -19,5 +19,8 @@ dependencies {
 testprofiler {
     buildBreaker {
         maxTestThreshold = 1
+        ifTestsExceedMaxThreshold {
+            breakBuild()
+        }
     }
 }

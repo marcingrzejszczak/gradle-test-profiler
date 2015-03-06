@@ -112,7 +112,7 @@ testprofiler {
             /**
              * Milliseconds after which test execution will be terminated with a fail
              */
-            Long maxTestThreshold
+            Integer maxTestThreshold = 30_000
 
             /**
              * List of test class name suffixes (e.g. LoanAmountVerificationTest)
@@ -123,6 +123,15 @@ testprofiler {
              * A method to add additional suffixes
              */
             addTestClassNameSuffix 'SomeOtherSuffix'
+
+            /**
+            * Section to describe what should happen if tests exceed max threshold
+            * for more options please check the {@link TestProfilerPluginExtension}
+            * or for usage check {@link com.blogspot.toomuchcoding.testprofiler.TestExecutionResultSavingTestListenerSpec}
+            */
+            ifTestsExceedMaxThreshold {
+                breakBuild()
+            }
         }
 }
 

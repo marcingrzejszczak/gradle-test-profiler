@@ -17,4 +17,8 @@ class LoggerProxy {
         log.info(message)
     }
 
+    void warn(String message) {
+        log.warn(message)
+    }
+
 }

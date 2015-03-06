@@ -1,5 +1,4 @@
 package com.blogspot.toomuchcoding.testprofiler
-
 import com.blogspot.toomuchcoding.testprofiler.TestProfilerPluginExtension.BuildBreakerOptions
 import com.blogspot.toomuchcoding.testprofiler.spock.CustomTimeout
 import com.blogspot.toomuchcoding.testprofiler.spock.GlobalTimeoutExtension
@@ -31,6 +30,10 @@ class AfterCompilationTestTaskModifier extends DefaultTask {
         if (maxThreshold == null) {
             log.info("No max test threshold has been provided thus no global timeout will be " +
                     "applied for project [$project.name]. Provided threshold was [$maxThreshold]")
+            return
+        }
+        if (!getTestProfilerPluginExtension().buildBreakerOptions.shouldBreakBuild()) {
+            log.debug("Won't add global timeout - user picked other approach")
             return
         }
         log.info("Adding global Timeout rule for project [$project.name]")

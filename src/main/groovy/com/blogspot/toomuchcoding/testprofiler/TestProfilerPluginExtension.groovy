@@ -3,6 +3,11 @@ package com.blogspot.toomuchcoding.testprofiler
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
 
+import static com.blogspot.toomuchcoding.testprofiler.TestProfilerPluginExtension.BuildBreakerOptions.WhatToDo.*
+import static com.blogspot.toomuchcoding.testprofiler.TestProfilerPluginExtension.BuildBreakerOptions.WhatToDo.Type.ACT
+import static com.blogspot.toomuchcoding.testprofiler.TestProfilerPluginExtension.BuildBreakerOptions.WhatToDo.Type.BREAK_BUILD
+import static com.blogspot.toomuchcoding.testprofiler.TestProfilerPluginExtension.BuildBreakerOptions.WhatToDo.Type.DISPLAY_WARNING
+
 @CompileStatic
 @ToString(includeNames = true)
 class TestProfilerPluginExtension {
@@ -76,5 +81,81 @@ class TestProfilerPluginExtension {
         void addTestClassNameSuffix(String testClassNameSuffix) {
             testClassNameSuffixes << testClassNameSuffix
         }
+
+        IfTestsExceedMaxThreshold ifTestsExceedMaxThreshold = new IfTestsExceedMaxThreshold()
+
+        void ifTestsExceedMaxThreshold(@DelegatesTo(IfTestsExceedMaxThreshold) Closure closure) {
+            closure.delegate = ifTestsExceedMaxThreshold
+            closure()
+        }
+
+        protected boolean shouldBreakBuild() {
+            return ifTestsExceedMaxThreshold.whatToDo.type == BREAK_BUILD
+        }
+
+        protected boolean shouldDisplayWarning() {
+            return ifTestsExceedMaxThreshold.whatToDo.type == DISPLAY_WARNING
+        }
+
+        protected boolean shouldAct() {
+            return ifTestsExceedMaxThreshold.whatToDo.type == ACT
+        }
+
+        static class WhatToDo {
+            public static final Closure DO_NOTHING = Closure.IDENTITY
+
+            static enum Type {
+                BREAK_BUILD, DISPLAY_WARNING, ACT
+            }
+
+            final Type type
+            final Closure action
+
+            WhatToDo(Type type, Closure action) {
+                this.type = type
+                this.action = action
+            }
+
+            boolean doNothing() {
+                return action == DO_NOTHING
+            }
+        }
+
+
+        static class IfTestsExceedMaxThreshold {
+            /**
+             * What type of action and what exactly should happen when build fails. Defaults to logging a warning
+             */
+            WhatToDo whatToDo = new WhatToDo(DISPLAY_WARNING, DO_NOTHING)
+
+            /**
+             * The build will be broken
+             */
+            void breakBuild() {
+                whatToDo = new WhatToDo(BREAK_BUILD, DO_NOTHING)
+            }
+
+            /**
+             * The warning will be displayed with default message
+             */
+            void displayWarning() {
+                whatToDo = new WhatToDo(DISPLAY_WARNING, DO_NOTHING)
+            }
+
+            /**
+             * The warning will be displayed basing on the result of closure
+             */
+            void displayWarning(Closure<String> closure) {
+                whatToDo = new WhatToDo(DISPLAY_WARNING, closure)
+            }
+
+            /**
+             * Custom action will take place
+             */
+            void act(Closure closure) {
+                whatToDo = new WhatToDo(ACT, closure)
+            }
+        }
+
     }
 }
