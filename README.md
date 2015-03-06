@@ -23,14 +23,13 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.blogspot.toomuchcoding:gradle-test-profiler:0.1.0'
+        classpath 'com.blogspot.toomuchcoding:gradle-test-profiler:0.2.0'
     }
 }
 
 apply plugin: 'com.blogspot.toomuchcoding.testprofiler'
 
 ```
-
 
 ### How to run it
 
@@ -136,7 +135,6 @@ testprofiler {
 }
 
 ```
-
 
 ## Deprecated (up till version 0.0.4)
 
