@@ -89,6 +89,9 @@ bintray {
         licenses = ['Apache-2.0']
         labels = ['gradle', 'testing']
     }
+    version {
+        attributes = ['gradle-plugin': 'com.blogspot.toomuchcoding.testprofiler:com.blogspot.toomuchcoding:gradle-test-profiler']
+    }
 }
 
 if (project.hasProperty('coverage')) {
