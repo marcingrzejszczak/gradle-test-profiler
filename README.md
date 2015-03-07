@@ -23,7 +23,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.blogspot.toomuchcoding:gradle-test-profiler:0.2.0'
+        classpath 'com.blogspot.toomuchcoding:gradle-test-profiler:0.2.1'
     }
 }
 
