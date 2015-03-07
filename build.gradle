@@ -74,6 +74,13 @@ plugindev {
     done() // do not omit this
 }
 
+task copyPluginDescriptorToMetaInf(type: Copy, dependsOn: generatePluginDescriptorFile) {
+    from "$project.buildDir/plugindev"
+    into "${sourceSets.main.output.resourcesDir}/META-INF/gradle-plugins"
+}
+
+test.dependsOn copyPluginDescriptorToMetaInf
+
 bintray {
     user = project.properties['bintrayUser']
     key = project.properties['bintrayKey']
