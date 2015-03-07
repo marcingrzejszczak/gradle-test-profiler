@@ -9,7 +9,7 @@ import static com.blogspot.toomuchcoding.testprofiler.TestProfilerPluginExtensio
 import static com.blogspot.toomuchcoding.testprofiler.TestProfilerPluginExtension.BuildBreakerOptions.WhatToDo.Type.DISPLAY_WARNING
 
 @CompileStatic
-@ToString(includeNames = true)
+@ToString(includePackage = false, includeNames = true)
 class TestProfilerPluginExtension {
 
     /**
@@ -63,6 +63,7 @@ class TestProfilerPluginExtension {
     /**
      * Options for build breaking
      */
+    @ToString(includePackage = false, includeNames = true)
     static class BuildBreakerOptions {
 
         /**

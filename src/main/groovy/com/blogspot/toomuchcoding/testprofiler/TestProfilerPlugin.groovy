@@ -23,24 +23,24 @@ class TestProfilerPlugin implements Plugin<Project> {
     private TestTaskModifier testTaskModifier
     private final LoggerProxy loggerProxy
     private final ExtensionCreator extensionCreator
+    private final TaskCreator taskCreator
 
     @Inject
     TestProfilerPlugin() {
         this.loggerProxy = new LoggerProxy()
         this.extensionCreator = new ExtensionCreator()
+        this.taskCreator = new TaskCreator()
     }
 
     protected TestProfilerPlugin(TestTaskModifier testTaskModifier, LoggerProxy loggerProxy, ExtensionCreator extensionCreator) {
         this.testTaskModifier = testTaskModifier
         this.loggerProxy = loggerProxy
         this.extensionCreator = extensionCreator
+        this.taskCreator = new TaskCreator()
     }
 
     void apply(Project project) {
         TestProfilerPluginExtension extension = extensionCreator.createExtension(project)
-        if(!extension.enabled) {
-            return
-        }
         setDefaults(project, extension)
         printExtensionValues(extension)
         modifyTestTasks(project, extension)
@@ -49,16 +49,12 @@ class TestProfilerPlugin implements Plugin<Project> {
     }
 
     private void printExtensionValues(TestProfilerPluginExtension testProfilerPluginExtension) {
-        loggerProxy.debug("Setting up profiling with the following parameters [$testProfilerPluginExtension]")
+        loggerProxy.debug("Setting up profiling with the following default parameters [$testProfilerPluginExtension]")
     }
 
     private void setDefaults(Project project, TestProfilerPluginExtension testProfilerPluginExtension) {
-        if (!testProfilerPluginExtension.relativeReportPath) {
-            testProfilerPluginExtension.relativeReportPath = new File(DEFAULT_SINGLE_REPORT_RELATIVE_PATH)
-        }
-        if (!testProfilerPluginExtension.mergedSummaryPath) {
-            testProfilerPluginExtension.mergedSummaryPath = new File(project.rootProject.buildDir, DEFAULT_MERGED_REPORTS_RELATIVE_PATH)
-        }
+        testProfilerPluginExtension.relativeReportPath = new File(DEFAULT_SINGLE_REPORT_RELATIVE_PATH)
+        testProfilerPluginExtension.mergedSummaryPath = new File(project.rootProject.buildDir, DEFAULT_MERGED_REPORTS_RELATIVE_PATH)
     }
 
     private void modifyTestTasks(Project project, TestProfilerPluginExtension extension) {
@@ -67,7 +63,7 @@ class TestProfilerPlugin implements Plugin<Project> {
     }
 
     private void createSummaryReportTask(Project project, TestProfilerPluginExtension extension) {
-        new TaskCreator().buildReportMergerForProject(project.rootProject, extension)
+        taskCreator.buildReportMergerForProject(project.rootProject, extension)
     }
 
     private File mergedTestProfilingSummaryDir(TestProfilerPluginExtension extension) {

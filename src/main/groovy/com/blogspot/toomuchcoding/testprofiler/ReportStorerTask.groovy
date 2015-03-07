@@ -23,6 +23,10 @@ class ReportStorerTask {
     }
 
     public void storeReport(Set<TestExecutionResult> testExecutionResults) {
+        if (!testProfilerPluginExtension.enabled) {
+            log.debug("The plugin is disabled so no test results will be recorded")
+            return
+        }
         log.debug("All test execution results [$testExecutionResults]")
         File report = createNewReportFile()
         addHeadersToFile(report)

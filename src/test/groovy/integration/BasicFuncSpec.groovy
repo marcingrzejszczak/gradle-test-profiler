@@ -1,11 +1,24 @@
 package integration
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
+import org.gradle.api.logging.LogLevel
 
 class BasicFuncSpec extends IntegrationSpec {
 
     void setup() {
         fork = true //to make stdout assertion work with Gradle 2.x - http://forums.gradle.org/gradle/topics/unable-to-catch-stdout-stderr-when-using-tooling-api-i-gradle-2-x#reply_15357743
+        logLevel = LogLevel.DEBUG
+    }
+
+    def "should not do anything if plugin is disabled"() {
+        given:
+            copyResources("project_with_disabled_plugin", "")
+        when:
+            ExecutionResult result = runTasksSuccessfully('build', "profileTests")
+        then:
+            !taskHasBeenExecuted(result)
+        and:
+            !reportsHaveBeenCreated()
     }
 
     def "should create a summary file with report summary"() {
@@ -14,10 +27,9 @@ class BasicFuncSpec extends IntegrationSpec {
         when:
             ExecutionResult result = runTasksSuccessfully('build', "profileTests")
         then:
-            result.standardOutput.contains("Your tests report is ready")
+            taskHasBeenExecuted(result)
         and:
-            fileExists("build/reports/test_profiling/summary.csv")
-            fileExists("build/reports/test_profiling/testsProfile.csv")
+            reportsHaveBeenCreated()
     }
 
     def 'should merge two reports for two separate modules'() {
@@ -26,13 +38,23 @@ class BasicFuncSpec extends IntegrationSpec {
         when:
             ExecutionResult result = runTasksSuccessfully('build', "profileTests")
         then:
-            result.standardOutput.contains("Your tests report is ready")
+            taskHasBeenExecuted(result)
         and:
             fileExists("module1/build/reports/test_profiling/testsProfile.csv")
             fileExists("module2/build/reports/test_profiling/testsProfile.csv")
         and:
             fileExists("build/reports/test_profiling/summary.csv")
             summaryReportContainsMergedValues(file('build/reports/test_profiling/summary.csv').text)
+    }
+
+
+    boolean reportsHaveBeenCreated() {
+        return fileExists("build/reports/test_profiling/summary.csv") &&
+                fileExists("build/reports/test_profiling/testsProfile.csv")
+    }
+
+    private boolean taskHasBeenExecuted(ExecutionResult result) {
+        result.standardOutput.contains("Your tests report is ready")
     }
 
     private void summaryReportContainsMergedValues(String reportText) {

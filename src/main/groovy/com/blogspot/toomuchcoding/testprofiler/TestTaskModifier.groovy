@@ -26,19 +26,17 @@ class TestTaskModifier {
     }
 
     void modifyCurrentTestTasks() {
-        log.debug("Modifying test tasks for project [$project.name]")
+        log.debug("Adding test listener and report storer for project [$project.name]")
         this.project.plugins.withType(JavaPlugin) {
             this.project.tasks.withType(Test) { Task task ->
                 if (task.name == JavaPlugin.TEST_TASK_NAME) {
                     Set<TestExecutionResult> testExecutionResults = Collections.newSetFromMap(new ConcurrentHashMap<TestExecutionResult, Boolean>())
                     Test testTask = (Test) task
                     testTask.addTestListener(new TestExecutionResultSavingTestListener(testExecutionResults, testProfilerPluginExtension, project))
-                    log.debug("Added test listener for task [$testTask.name]")
                     testTask.doLast {
-                        log.debug("Stored results are $testExecutionResults")
                         new ReportStorerTask(testProfilerPluginExtension, project).storeReport(testExecutionResults)
                     }
-                    log.debug("Added storing results as last action for task [$testTask.name]")
+                    log.debug("Added test listener and report storer for task [$testTask.name]")
                 }
             }
         }

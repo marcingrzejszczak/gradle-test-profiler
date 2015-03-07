@@ -16,6 +16,10 @@ class ReportMergerTask extends DefaultTask {
 
     @TaskAction
     void testsProfileSummaryReport() {
+        if (!getTestProfilerPluginExtension().enabled) {
+            log.debug("The plugin is disabled so no merging will take place")
+            return
+        }
         log.debug("Will store merged test profiling summary in [${getMergedTestProfilingSummaryFile()}]")
         Project rootProject = project.rootProject
         String fileContent = rootProject.getAllprojects().collect {

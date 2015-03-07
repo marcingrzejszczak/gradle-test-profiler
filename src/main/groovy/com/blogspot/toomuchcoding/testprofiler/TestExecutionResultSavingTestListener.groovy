@@ -38,6 +38,10 @@ class TestExecutionResultSavingTestListener implements TestListener {
 
     @Override
     void afterTest(TestDescriptor testDescriptor, TestResult result) {
+        if (!testProfilerPluginExtension.enabled) {
+            loggerProxy.debug("The plugin is disabled so no test results will be recorded")
+            return
+        }
         long executionTimeInMs = result.endTime - result.startTime
         TestExecutionResult testExecutionResult = new TestExecutionResult(testDescriptor.className, testDescriptor.name, (executionTimeInMs / 1000) as Double)
         loggerProxy.info("[TEST-PROFILER] Gathered Test Execution Result [$testExecutionResult] with result [$result]")

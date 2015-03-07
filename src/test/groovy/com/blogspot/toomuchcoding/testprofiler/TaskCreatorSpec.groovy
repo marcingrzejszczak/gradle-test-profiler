@@ -5,7 +5,7 @@ import org.gradle.api.Task
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-class TaskCreatorSpec extends Specification {
+class TaskCreastorSpec extends Specification {
 
     TaskCreator taskCreator = new TaskCreator()
     Project project = ProjectBuilder.builder().build()
