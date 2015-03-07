@@ -21,6 +21,22 @@ class BasicFuncSpec extends IntegrationSpec {
             !reportsHaveBeenCreated()
     }
 
+    def "should create a report and summary for a module that has plugin enabled"() {
+        given:
+            copyResources("multimodule_project_with_disabled_plugin", "")
+        when:
+            ExecutionResult result = runTasksSuccessfully('build', "profileTests")
+        then:
+            taskHasBeenExecuted(result)
+        and:
+            !reportExistsForModule('module1')
+            reportExistsForModule('module2')
+        and:
+            reportSummaryHasBeenCreated()
+            reportSummaryHasNoStatsFromModule1()
+
+    }
+
     def "should create a summary file with report summary"() {
         given:
             copyResources("project_without_timeout", "")
@@ -40,27 +56,42 @@ class BasicFuncSpec extends IntegrationSpec {
         then:
             taskHasBeenExecuted(result)
         and:
-            fileExists("module1/build/reports/test_profiling/testsProfile.csv")
-            fileExists("module2/build/reports/test_profiling/testsProfile.csv")
+            reportExistsForModule('module1')
+            reportExistsForModule('module2')
         and:
-            fileExists("build/reports/test_profiling/summary.csv")
+            reportSummaryHasBeenCreated()
             summaryReportContainsMergedValues(file('build/reports/test_profiling/summary.csv').text)
     }
 
+    private boolean reportSummaryHasBeenCreated() {
+        return fileExists("build/reports/test_profiling/summary.csv")
+    }
 
-    boolean reportsHaveBeenCreated() {
+    private boolean reportExistsForModule(String module) {
+        return fileExists("$module/build/reports/test_profiling/testsProfile.csv")
+    }
+
+    private boolean reportsHaveBeenCreated() {
         return fileExists("build/reports/test_profiling/summary.csv") &&
                 fileExists("build/reports/test_profiling/testsProfile.csv")
     }
 
+
+    private void reportSummaryHasNoStatsFromModule1() {
+        assert !file('build/reports/test_profiling/summary.csv').text.contains('module1')
+    }
+
     private boolean taskHasBeenExecuted(ExecutionResult result) {
-        result.standardOutput.contains("Your tests report is ready")
+        return result.standardOutput.contains("Your tests report is ready")
     }
 
     private void summaryReportContainsMergedValues(String reportText) {
-        assert reportText.contains(':module1\tfoo.CalculatorTest\tshould_add_two_numbers')
-        assert reportText.contains(':module1\tfoo.CalculatorTest\tshould_subtract_a_number_from_another')
-        assert reportText.contains(':module2\tfoo.CalculatorTest\tshould_subtract_a_number_from_another')
-        assert reportText.contains(':module2\tfoo.CalculatorTest\tshould_add_two_numbers')
+        summaryReportContainsValuesFromModule('module1', reportText)
+        summaryReportContainsValuesFromModule('module2', reportText)
+    }
+
+    private void summaryReportContainsValuesFromModule(String moduleName, String reportText) {
+        assert reportText.contains(":$moduleName\tfoo.CalculatorTest\tshould_add_two_numbers")
+        assert reportText.contains(":$moduleName\tfoo.CalculatorTest\tshould_subtract_a_number_from_another")
     }
 }
