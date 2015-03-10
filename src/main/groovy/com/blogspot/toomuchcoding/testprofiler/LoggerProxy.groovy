@@ -1,4 +1,5 @@
 package com.blogspot.toomuchcoding.testprofiler
+
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 
@@ -19,4 +20,3 @@ class LoggerProxy {
     }
 
 }
-@PackageScope
