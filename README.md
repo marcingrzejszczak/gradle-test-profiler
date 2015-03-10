@@ -125,8 +125,6 @@ testprofiler {
 
             /**
             * Section to describe what should happen if tests exceed max threshold
-            * for more options please check the {@link TestProfilerPluginExtension}
-            * or for usage check {@link com.blogspot.toomuchcoding.testprofiler.TestExecutionResultSavingTestListenerSpec}
             */
             ifTestsExceedMaxThreshold {
                 breakBuild()
@@ -134,6 +132,68 @@ testprofiler {
         }
 }
 
+```
+
+### Actions if build exceeds max threshold
+
+#### Display default warning message
+
+If provided as follows then the build will display a default warning message if the test execution time exceeds the provided max one
+
+```
+testprofiler {
+
+    buildBreaker {
+                Integer maxTestThreshold = 30_000
+
+                ifTestsExceedMaxThreshold {
+                    breakBuild()
+                }
+            }
+    }
+}
+```
+
+#### Display custom warning message
+
+If provided as follows then the build will display a custom warning message if the test execution time exceeds the provided max one
+
+```
+testprofiler {
+
+    buildBreaker {
+                Integer maxTestThreshold = 30_000
+
+                ifTestsExceedMaxThreshold {
+                    breakBuild { TestDescriptor testDescriptor, TestExecutionResult testExecutionResult ->
+                        "return some string with [$testDescriptor] and [$testExecutionResult] that will be logged"
+                    }
+                }
+            }
+    }
+}
+```
+
+#### Perform custom logic
+
+If provided as follows then the custom logic will be executed if the test execution time exceeds the provided max one
+
+```
+testprofiler {
+
+    buildBreaker {
+                Integer maxTestThreshold = 30_000
+
+                ifTestsExceedMaxThreshold {
+                    act { com.blogspot.toomuchcoding.testprofiler.LoggerProxy,
+                          TestDescriptor testDescriptor,
+                          TestExecutionResult testExecutionResult ->
+                        // do whatever you want to...
+                    }
+                }
+            }
+    }
+}
 ```
 
 ## Deprecated (up till version 0.0.4)
