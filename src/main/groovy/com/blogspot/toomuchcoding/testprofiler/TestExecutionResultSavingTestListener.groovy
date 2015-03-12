@@ -68,7 +68,11 @@ class TestExecutionResultSavingTestListener implements TestListener {
     }
 
     private boolean testExecutionTimeIsBelowMaxThreshold(long executionTimeInMs) {
-        return executionTimeInMs >= testProfilerPluginExtension.buildBreakerOptions.maxTestThreshold
+        return getMaxTestThreshold() != null && executionTimeInMs >= getMaxTestThreshold()
+    }
+
+    private Integer getMaxTestThreshold() {
+        return testProfilerPluginExtension.buildBreakerOptions.maxTestThreshold
     }
 
     private void performAdditionalLogic(TestDescriptor testDescriptor, TestExecutionResult testExecutionResult, long executionTimeInMs) {

@@ -4,6 +4,8 @@ import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 import spock.lang.Unroll
 
+import java.text.DecimalFormatSymbols
+
 class TimeoutFuncSpec extends IntegrationSpec {
 
     void setup() {
@@ -20,8 +22,8 @@ class TimeoutFuncSpec extends IntegrationSpec {
             String stdout = result.standardOutput.toString()
             assertThatTestFailed(stdout, 'foo.CalculatorTest')
             assertThatTestFailed(stdout, 'foo.CalculatorSpec')
-            assertThatStandardOuputContains(stdout, 'test timed out after 1 milliseconds')
-            assertThatStandardOuputContains(stdout, 'Method timed out after 0.00 seconds')
+            assertThatStandardOutputContains(stdout, 'test timed out after 1 milliseconds')
+            assertThatStandardOutputContains(stdout, "Method timed out after 0${DecimalFormatSymbols.getInstance().decimalSeparator}00 seconds")
         where:
             projectName << ['project_with_timeout', 'project_with_timeout_with_spock_1']
     }
@@ -30,7 +32,7 @@ class TimeoutFuncSpec extends IntegrationSpec {
         assert standardOutput.contains("$className > should_add_two_numbers FAILED")
     }
 
-    void assertThatStandardOuputContains(String standardOutput, String text) {
+    void assertThatStandardOutputContains(String standardOutput, String text) {
         assert standardOutput.contains(text)
     }
 
