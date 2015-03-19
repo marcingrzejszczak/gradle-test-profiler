@@ -147,7 +147,7 @@ testprofiler {
                 Integer maxTestThreshold = 30_000
 
                 ifTestsExceedMaxThreshold {
-                    breakBuild()
+                    displayWarning()
                 }
             }
     }
@@ -165,9 +165,27 @@ testprofiler {
                 Integer maxTestThreshold = 30_000
 
                 ifTestsExceedMaxThreshold {
-                    breakBuild { TestDescriptor testDescriptor, TestExecutionResult testExecutionResult ->
+                    displayWarning { TestDescriptor testDescriptor, TestExecutionResult testExecutionResult ->
                         "return some string with [$testDescriptor] and [$testExecutionResult] that will be logged"
                     }
+                }
+            }
+    }
+}
+```
+
+#### Break the build
+
+If provided as follows then the will break the build if the test takes too long too run.
+
+```
+testprofiler {
+
+    buildBreaker {
+                Integer maxTestThreshold = 30_000
+
+                ifTestsExceedMaxThreshold {
+                    breakBuild()
                 }
             }
     }
