@@ -28,6 +28,21 @@ class TimeoutFuncSpec extends IntegrationSpec {
             projectName << ['project_with_timeout', 'project_with_timeout_with_spock_1']
     }
 
+    @Unroll
+    def "should not fail the tests in project [#projectName] due to timeout because of regexps"() {
+        given:
+            String projectName = 'project_with_timeout_with_regexp'
+            copyResources(projectName, "")
+        when:
+            ExecutionResult result = runTasksWithFailure("build", "profileTests")
+        then:
+            String stdout = result.standardOutput.toString()
+            assertThatTestFailed(stdout, 'foo.CalculatorTest')
+            assertThatTestFailed(stdout, 'foo.CalculatorSpec')
+            assertThatStandardOutputContains(stdout, 'test timed out after 1 milliseconds')
+            assertThatStandardOutputContains(stdout, "Method timed out after 0${DecimalFormatSymbols.getInstance().decimalSeparator}00 seconds")
+    }
+
     void assertThatTestFailed(String standardOutput, String className) {
         assert standardOutput.contains("$className > should_add_two_numbers FAILED")
     }

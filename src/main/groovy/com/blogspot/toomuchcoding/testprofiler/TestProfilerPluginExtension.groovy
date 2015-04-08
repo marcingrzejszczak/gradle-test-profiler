@@ -79,8 +79,8 @@ class TestProfilerPluginExtension {
         /**
          * A method to add additional suffixes
          */
-        void addTestClassNameSuffix(String testClassNameSuffix) {
-            testClassNameSuffixes << testClassNameSuffix
+        void addTestClassNameSuffix(String... testClassNameSuffix) {
+            testClassNameSuffixes.addAll(testClassNameSuffix)
         }
 
         /**
@@ -91,8 +91,8 @@ class TestProfilerPluginExtension {
         /**
          * A method to add regexps
          */
-        void addTestClassRegexpToIgnore(String testClassRegexpToIgnore) {
-            testClassRegexpsToIgnore << testClassRegexpToIgnore
+        void addTestClassRegexpToIgnore(String... testClassRegexpToIgnore) {
+            testClassRegexpsToIgnore.addAll(testClassRegexpToIgnore)
         }
 
         IfTestsExceedMaxThreshold ifTestsExceedMaxThreshold = new IfTestsExceedMaxThreshold()
