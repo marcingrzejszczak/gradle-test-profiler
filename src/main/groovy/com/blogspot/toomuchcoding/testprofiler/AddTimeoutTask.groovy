@@ -2,6 +2,7 @@ package com.blogspot.toomuchcoding.testprofiler
 import com.blogspot.toomuchcoding.testprofiler.TestProfilerPluginExtension.BuildBreakerOptions
 import com.blogspot.toomuchcoding.testprofiler.spock.CustomTimeout
 import com.blogspot.toomuchcoding.testprofiler.spock.GlobalTimeoutExtension
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.TypeCheckingMode
@@ -48,8 +49,9 @@ class AddTimeoutTask extends DefaultTask {
         this.project.plugins.withType(JavaPlugin) {
             this.project.tasks.withType(Test) { Task task ->
                 Test testTask = (Test) task
-                appendTimeoutRule(getTestProfilerPluginExtension().buildBreakerOptions, testTask)
-                addGlobalExtensionToSpock(testTask, maxThreshold)
+                BuildBreakerOptions buildBreakerOptions = getTestProfilerPluginExtension().buildBreakerOptions
+                appendTimeoutRule(buildBreakerOptions, testTask)
+                addGlobalExtensionToSpock(testTask, maxThreshold, buildBreakerOptions)
             }
         }
     }
@@ -58,8 +60,8 @@ class AddTimeoutTask extends DefaultTask {
         new TestClassesModifier(project, buildBreakerOptions).appendRule(testTask)
     }
 
-    @CompileStatic(TypeCheckingMode.SKIP)
-    private void addGlobalExtensionToSpock(Test test, Integer maxThreshold) {
+    @CompileDynamic
+    private void addGlobalExtensionToSpock(Test test, Integer maxThreshold, BuildBreakerOptions buildBreakerOptions) {
         if (!project.plugins.findPlugin('groovy')) {
             log.debug("The project doesn't have Groovy plugin - skipping Spock extension adding")
             return
@@ -70,7 +72,10 @@ class AddTimeoutTask extends DefaultTask {
         }
         addEntryInMetaInf()
         addCompiledGlobalExtensionToTests(test)
-        test.jvmArgs("-D${TestProfilerPlugin.DEFAULT_TEST_TIMEOUT_PROPERTY}=${maxThreshold.toString()}")
+        test.jvmArgs(
+                "-D${TestProfilerPlugin.DEFAULT_TEST_TIMEOUT_PROPERTY}=${maxThreshold.toString()}",
+                "-D${TestProfilerPlugin.TEST_CLASSES_TO_IGNORE}=${buildBreakerOptions.testClassRegexpsToIgnore.join(',')}"
+        )
     }
 
     private void addCompiledGlobalExtensionToTests(Test test) {

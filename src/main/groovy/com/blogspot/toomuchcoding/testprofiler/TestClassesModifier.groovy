@@ -35,8 +35,10 @@ class TestClassesModifier {
         log.debug("Appending Timeout rule to test [$test]")
         List<String> pathsToLoad = retrieveFqnsOfClasses(test)
         log.debug("PathsToLoad $pathsToLoad")
+        Collection<String> nonIgnorableClasses = findAllNonIgnorableClasses(pathsToLoad)
+        log.debug("NonIgnorableClasses $nonIgnorableClasses")
         GroovyClassLoader groovyClassLoader = new TestTaskBasedGroovyClassLoader(test)
-        overwriteExistingTestClasses(pathsToLoad, groovyClassLoader, test)
+        overwriteExistingTestClasses(nonIgnorableClasses, groovyClassLoader, test)
     }
 
     private List<String> retrieveFqnsOfClasses(Test test) {
@@ -49,6 +51,12 @@ class TestClassesModifier {
             }
         }
         return pathsToLoad
+    }
+
+    private Collection<String> findAllNonIgnorableClasses(List<String> pathsToLoad) {
+        List<String> regexpsToIgnore = buildBreakerOptions.testClassRegexpsToIgnore
+        log.debug("Ignoring the following test classes matching the regexps [${regexpsToIgnore}]")
+        return pathsToLoad.findAll { String path -> !regexpsToIgnore.any { path.matches(it) } }
     }
 
     private String createFQNFromFiles(File testClass, File testClassesDir) {
@@ -70,7 +78,7 @@ class TestClassesModifier {
         field.fieldInfo.addAttribute(attr)
     }
 
-    private void overwriteExistingTestClasses(List<String> pathsToLoad, ClassLoader classLoader, Test test) {
+    private void overwriteExistingTestClasses(Collection<String> pathsToLoad, ClassLoader classLoader, Test test) {
         pathsToLoad.collect { classLoader.loadClass(it) }.each { writeFile(it, test) }
     }
 

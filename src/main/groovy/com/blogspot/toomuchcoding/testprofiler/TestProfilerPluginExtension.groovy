@@ -83,6 +83,18 @@ class TestProfilerPluginExtension {
             testClassNameSuffixes << testClassNameSuffix
         }
 
+        /**
+         * List of regexps related to FQN of class that if matched will NOT break the test
+         */
+        List<String> testClassRegexpsToIgnore = []
+
+        /**
+         * A method to add regexps
+         */
+        void addTestClassRegexpToIgnore(String testClassRegexpToIgnore) {
+            testClassRegexpsToIgnore << testClassRegexpToIgnore
+        }
+
         IfTestsExceedMaxThreshold ifTestsExceedMaxThreshold = new IfTestsExceedMaxThreshold()
 
         void ifTestsExceedMaxThreshold(@DelegatesTo(IfTestsExceedMaxThreshold) Closure closure) {
