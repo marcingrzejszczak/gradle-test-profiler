@@ -35,7 +35,7 @@ public class GlobalTimeoutExtension implements IGlobalExtension {
     private boolean checkIfSpecNameMatchesRegexpToIgnore(SpecInfo spec, List<String> testClassesToIgnore) {
         boolean specNameMatchesRegexp = false;
         for(String testClassRegexp : testClassesToIgnore) {
-            if(spec.getName().matches(testClassRegexp)) {
+            if(spec.getDescription().getClassName().matches(testClassRegexp)) {
                 specNameMatchesRegexp = true;
                 break;
             }

@@ -89,7 +89,7 @@ class TestProfilerPluginExtension {
         List<String> testClassRegexpsToIgnore = []
 
         /**
-         * A method to add regexps
+         * A method to add regexps of classes to ignore
          */
         void addTestClassRegexpToIgnore(String... testClassRegexpToIgnore) {
             testClassRegexpsToIgnore.addAll(testClassRegexpToIgnore)
