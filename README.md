@@ -122,6 +122,18 @@ testprofiler {
              * A method to add additional suffixes
              */
             addTestClassNameSuffix 'SomeOtherSuffix'
+            
+            /**
+             * List of regexps related to FQN of class that if matched will NOT break the test
+             */
+            List<String> testClassRegexpsToIgnore = []
+    
+            /**
+             * A method to add regexps of classes to ignore
+             */
+            void addTestClassRegexpToIgnore(String... testClassRegexpToIgnore) {
+                testClassRegexpsToIgnore.addAll(testClassRegexpToIgnore)
+            }
 
             /**
             * Section to describe what should happen if tests exceed max threshold

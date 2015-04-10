@@ -1,8 +1,7 @@
 package com.blogspot.toomuchcoding.testprofiler
-
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
-import groovy.transform.TypeCheckingMode
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.JavaPlugin
@@ -27,7 +26,7 @@ class BuildBreaker {
         createAfterCompilationTestTaskModifier()
     }
 
-    @CompileStatic(TypeCheckingMode.SKIP)
+    @CompileDynamic
     private Task createAfterCompilationTestTaskModifier() {
         AddTimeoutTask addTimeoutTask = project.tasks.create(TestProfilerPlugin.TIMEOUT_ADDER_TESTS_TASK_NAME, AddTimeoutTask)
         addTimeoutTask.dependsOn(testCompilationTask(project))

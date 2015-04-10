@@ -15,6 +15,7 @@ class TestProfilerPlugin implements Plugin<Project> {
     public static final String TIMEOUT_ADDER_TESTS_TASK_NAME = "addTimeout"
 
     @PackageScope static final String DEFAULT_TEST_TIMEOUT_PROPERTY = 'default.test.timeout'
+    @PackageScope static final String TEST_CLASSES_TO_IGNORE = 'test.classes.to.ignore'
 
     private static final String DEFAULT_REPORTS_FOLDER = '/reports/test_profiling'
     private static final String DEFAULT_SINGLE_REPORT_RELATIVE_PATH = "$DEFAULT_REPORTS_FOLDER/testsProfile.csv"
