@@ -63,7 +63,7 @@ class TestProfilerPlugin implements Plugin<Project> {
     }
 
     private void createSummaryReportTask(Project project, TestProfilerPluginExtension extension) {
-        taskCreator.buildReportMergerForProject(project.rootProject, extension)
+        taskCreator.buildReportMergerForProject(project, extension)
     }
 
     private File mergedTestProfilingSummaryDir(TestProfilerPluginExtension extension) {
