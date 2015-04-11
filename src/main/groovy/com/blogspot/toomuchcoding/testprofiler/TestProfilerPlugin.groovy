@@ -44,9 +44,11 @@ class TestProfilerPlugin implements Plugin<Project> {
         TestProfilerPluginExtension extension = extensionCreator.createExtension(project)
         setDefaults(project, extension)
         printExtensionValues(extension)
-        modifyTestTasks(project, extension)
-        createSummaryReportTask(project, extension)
-        performBuildBreakingLogic(project, extension)
+        project.afterEvaluate {
+            modifyTestTasks(project, extension)
+            createSummaryReportTask(project, extension)
+            performBuildBreakingLogic(project, extension)
+        }
     }
 
     private void printExtensionValues(TestProfilerPluginExtension testProfilerPluginExtension) {

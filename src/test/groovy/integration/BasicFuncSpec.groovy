@@ -48,6 +48,17 @@ class BasicFuncSpec extends IntegrationSpec {
             reportsHaveBeenCreated()
     }
 
+    def "should create a summary file with report summary even if pluin was applied before Java plugin"() {
+        given:
+            copyResources("project_with_plugin_applied_before_java", "")
+        when:
+            ExecutionResult result = runTasksSuccessfully('build', "profileTests")
+        then:
+            taskHasBeenExecuted(result)
+        and:
+            reportsHaveBeenCreated()
+    }
+
     def 'should merge two reports for two separate modules'() {
         given:
             copyResources("multimodule_project_without_timeout", "")
