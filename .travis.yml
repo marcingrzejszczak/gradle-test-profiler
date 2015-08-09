@@ -1,6 +1,24 @@
+sudo: false
+
+language: groovy
+
 jdk:
-  - oraclejdk8
   - oraclejdk7
+  - oraclejdk8
+
+cache:
+  directories:
+  - $HOME/.gradle
+  - $HOME/.m2
+
+env:
+  - GRADLE_VERSION=2.3
+  - GRADLE_VERSION=2.4
+  - GRADLE_VERSION=2.5
+
+before_install:
+  - echo -e "\ndistributionUrl=http\://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
+  - cat gradle/wrapper/gradle-wrapper.properties
 
 script:
 - ./gradlew clean build
