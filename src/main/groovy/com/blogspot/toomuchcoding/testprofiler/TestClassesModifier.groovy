@@ -70,7 +70,11 @@ class TestClassesModifier {
     }
 
     private String getGeneratedFieldName(CtClass testClass) {
-        return "${testClass.simpleName}_timeout_${UUID.randomUUID().toString().replaceAll('-', '_')}"
+        return "${testClass.simpleName}_timeout_${createUuidAcceptableAsJavaFieldName()}"
+    }
+
+    private String createUuidAcceptableAsJavaFieldName() {
+        return UUID.randomUUID().toString().replaceAll('-', '_')
     }
 
     private void wrapFieldWithRuleAnnotation(ConstPool constpool, CtField field) {
@@ -86,7 +90,7 @@ class TestClassesModifier {
 
     private void writeFile(Class clazz, Test test) {
         log.debug("I'm in class [$clazz] and test [$test]")
-        ClassPool pool = ClassPool.getDefault()
+        ClassPool pool = createClassPoolWithSystemPath()
         ConstPool constpool = createConstPool(clazz, pool)
         CtClass testClass = pool.get(clazz.name)
         if (theFieldHasBeenAlreadyCreated(testClass)) {
@@ -101,6 +105,12 @@ class TestClassesModifier {
         log.debug("Added field to test class")
         testClass.writeFile(test.testClassesDir.absolutePath)
         log.debug("Writing test class to path [${test.testClassesDir.absolutePath}]")
+    }
+
+    private ClassPool createClassPoolWithSystemPath() {
+        ClassPool pool = new ClassPool()
+        pool.appendSystemPath()
+        return pool
     }
 
     private boolean theFieldHasBeenAlreadyCreated(CtClass testClass) {
