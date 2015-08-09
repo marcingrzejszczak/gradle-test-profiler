@@ -64,11 +64,13 @@ class TestClassesModifier {
     }
 
     private CtField createTimeoutField(CtClass testClass) {
-        return CtField.make("public org.junit.rules.Timeout ${getGeneratedFieldName(testClass)} = new org.junit.rules.Timeout($buildBreakerOptions.maxTestThreshold);", testClass)
+        String rule = "public org.junit.rules.Timeout ${getGeneratedFieldName(testClass)} = new org.junit.rules.Timeout($buildBreakerOptions.maxTestThreshold);"
+        log.debug("Trying to append the following code [$rule] to test class [$testClass]")
+        return CtField.make(rule, testClass)
     }
 
     private String getGeneratedFieldName(CtClass testClass) {
-        return "${testClass.simpleName}_timeout"
+        return "${testClass.simpleName}_timeout_${UUID.randomUUID().toString().replaceAll('-', '_')}"
     }
 
     private void wrapFieldWithRuleAnnotation(ConstPool constpool, CtField field) {
@@ -83,27 +85,37 @@ class TestClassesModifier {
     }
 
     private void writeFile(Class clazz, Test test) {
+        log.debug("I'm in class [$clazz] and test [$test]")
         ClassPool pool = ClassPool.getDefault()
         ConstPool constpool = createConstPool(clazz, pool)
         CtClass testClass = pool.get(clazz.name)
         if (theFieldHasBeenAlreadyCreated(testClass)) {
+            log.debug("The field has already been created...")
             return
         }
         CtField field = createTimeoutField(testClass)
+        log.debug("Created timeout field")
         wrapFieldWithRuleAnnotation(constpool, field)
+        log.debug("Wrapped field with rule annotation")
         testClass.addField(field)
+        log.debug("Added field to test class")
         testClass.writeFile(test.testClassesDir.absolutePath)
+        log.debug("Writing test class to path [${test.testClassesDir.absolutePath}]")
     }
 
     private boolean theFieldHasBeenAlreadyCreated(CtClass testClass) {
         try {
-            return testClass.getField(getGeneratedFieldName(testClass))
+            String fieldToRetrieve = getGeneratedFieldName(testClass)
+            log.debug("Field to retrieve is [$fieldToRetrieve]")
+            return testClass.getField(fieldToRetrieve)
         } catch (NotFoundException exception) {
+            log.error("Exception occurred while tyring to find the field", exception)
             return false
         }
     }
 
     private ConstPool createConstPool(Class clazz, ClassPool pool) {
+        log.debug("Class is located at [${clazz.getProtectionDomain().getCodeSource().getLocation()}]")
         ClassClassPath classClassPath = new ClassClassPath(clazz)
         pool.insertClassPath(classClassPath)
         CtClass ctClass = pool.getCtClass(clazz.name)
