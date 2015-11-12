@@ -66,42 +66,42 @@ testprofiler {
          * Should TestProfilerPlugin be enabled? If set to false there will be no modification of any Gradle Test classes
          * and the task will simply print a message
          */
-        boolean enabled = true
+        enabled = true
 
         /**
          * Separator of columns in the output report
          */
-        String separator = '\t'
+        separator = '\t'
 
         /**
          * Headers in the report
          */
-        String outputReportHeaders = "module${separator}test class name${separator}test name${separator}test execution time in [s]${separator}test class execution time in [s]\n"
+        outputReportHeaders = "module${separator}test class name${separator}test name${separator}test execution time in [s]${separator}test class execution time in [s]\n"
 
         /**
          * Closure that will be converted to a Comparator to compare row entries
          */
-        Closure<Integer> comparator = DefaultTestExecutionComparator.DEFAULT_TEST_EXECUTION_COMPARATOR
+        comparator DefaultTestExecutionComparator.DEFAULT_TEST_EXECUTION_COMPARATOR // returns Closure<Integer>
 
         /**
          * Closure that converts a reporter row entry to a single String
          */
-        Closure<String> rowFromReport = ReportStorer.DEFAULT_ROW_FROM_REPORT_CONVERTER
+        rowFromReport = ReportStorer.DEFAULT_ROW_FROM_REPORT_CONVERTER // returns Closure<String> 
 
         /**
          * Relative path to the report for a module. Defaults to {@code /reports/test_profiling/testsProfile.csv}
          */
-        File relativeReportPath
+        relativeReportPath // returns File 
 
         /**
          * Path to the merged summary of reports. Defaults to {@code project.rootProject.buildDir/reports/test_profiling/summary.csv"
          */
-        File mergedSummaryPath
+        mergedSummaryPath // returns File
 
         /**
          * Milliseconds of test execution above which we will store information about the test. Defaults to 0
          */
-        Integer minTestThreshold = 0
+        minTestThreshold = 0 // returns Integer
 
         /**
          * Additional options for build breaking
@@ -111,12 +111,12 @@ testprofiler {
             /**
              * Milliseconds after which test execution will be terminated with a fail
              */
-            Integer maxTestThreshold = 30_000
+            maxTestThreshold = 30_000 // returns Integer
 
             /**
              * List of test class name suffixes (e.g. LoanAmountVerificationTest)
              */
-            List<String> testClassNameSuffixes = ['Test', 'Should', 'Spec']
+            testClassNameSuffixes = ['Test', 'Should', 'Spec'] // returns List<String>
 
             /**
              * A method to add additional suffixes
@@ -126,14 +126,12 @@ testprofiler {
             /**
              * List of regexps related to FQN of class that if matched will NOT break the test
              */
-            List<String> testClassRegexpsToIgnore = []
+            testClassRegexpsToIgnore = [] // returns List<String>
     
             /**
              * A method to add regexps of classes to ignore
              */
-            void addTestClassRegexpToIgnore(String... testClassRegexpToIgnore) {
-                testClassRegexpsToIgnore.addAll(testClassRegexpToIgnore)
-            }
+            addTestClassRegexpToIgnore('a', 'b', 'c')
 
             /**
             * Section to describe what should happen if tests exceed max threshold
@@ -156,7 +154,7 @@ If provided as follows then the build will display a default warning message if 
 testprofiler {
 
     buildBreaker {
-                Integer maxTestThreshold = 30_000
+                maxTestThreshold = 30_000
 
                 ifTestsExceedMaxThreshold {
                     displayWarning()
@@ -174,7 +172,7 @@ If provided as follows then the build will display a custom warning message if t
 testprofiler {
 
     buildBreaker {
-                Integer maxTestThreshold = 30_000
+                maxTestThreshold = 30_000
 
                 ifTestsExceedMaxThreshold {
                     displayWarning { TestDescriptor testDescriptor, TestExecutionResult testExecutionResult ->
@@ -194,7 +192,7 @@ If provided as follows then the will break the build if the test takes too long 
 testprofiler {
 
     buildBreaker {
-                Integer maxTestThreshold = 30_000
+                maxTestThreshold = 30_000
 
                 ifTestsExceedMaxThreshold {
                     breakBuild()
@@ -212,7 +210,7 @@ If provided as follows then the custom logic will be executed if the test execut
 testprofiler {
 
     buildBreaker {
-                Integer maxTestThreshold = 30_000
+                maxTestThreshold = 30_000
 
                 ifTestsExceedMaxThreshold {
                     act { com.blogspot.toomuchcoding.testprofiler.LoggerProxy,
