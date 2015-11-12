@@ -23,7 +23,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.blogspot.toomuchcoding:gradle-test-profiler:0.3.1'
+        classpath 'com.blogspot.toomuchcoding:gradle-test-profiler:0.3.2'
     }
 }
 
@@ -71,7 +71,7 @@ testprofiler {
         /**
          * Separator of columns in the output report
          */
-        separator = '\t'
+        separator = ';'
 
         /**
          * Headers in the report
@@ -81,27 +81,27 @@ testprofiler {
         /**
          * Closure that will be converted to a Comparator to compare row entries
          */
-        comparator DefaultTestExecutionComparator.DEFAULT_TEST_EXECUTION_COMPARATOR // returns Closure<Integer>
+        comparator = DefaultTestExecutionComparator.DEFAULT_TEST_EXECUTION_COMPARATOR // requires Closure<Integer>
 
         /**
          * Closure that converts a reporter row entry to a single String
          */
-        rowFromReport = ReportStorer.DEFAULT_ROW_FROM_REPORT_CONVERTER // returns Closure<String> 
+        rowFromReport = ReportStorer.DEFAULT_ROW_FROM_REPORT_CONVERTER // requires Closure<String> 
 
         /**
          * Relative path to the report for a module. Defaults to {@code /reports/test_profiling/testsProfile.csv}
          */
-        relativeReportPath // returns File 
+        relativeReportPath = new File(...) // requires File 
 
         /**
          * Path to the merged summary of reports. Defaults to {@code project.rootProject.buildDir/reports/test_profiling/summary.csv"
          */
-        mergedSummaryPath // returns File
+        mergedSummaryPath = new File(...) // requires File
 
         /**
          * Milliseconds of test execution above which we will store information about the test. Defaults to 0
          */
-        minTestThreshold = 0 // returns Integer
+        minTestThreshold = 0 // requires Integer
 
         /**
          * Additional options for build breaking
@@ -111,12 +111,12 @@ testprofiler {
             /**
              * Milliseconds after which test execution will be terminated with a fail
              */
-            maxTestThreshold = 30_000 // returns Integer
+            maxTestThreshold = 30_000 // requires Integer
 
             /**
              * List of test class name suffixes (e.g. LoanAmountVerificationTest)
              */
-            testClassNameSuffixes = ['Test', 'Should', 'Spec'] // returns List<String>
+            testClassNameSuffixes = ['Test', 'Should', 'Spec'] // requires List<String>
 
             /**
              * A method to add additional suffixes
@@ -126,7 +126,7 @@ testprofiler {
             /**
              * List of regexps related to FQN of class that if matched will NOT break the test
              */
-            testClassRegexpsToIgnore = [] // returns List<String>
+            testClassRegexpsToIgnore = [] // requires List<String>
     
             /**
              * A method to add regexps of classes to ignore
