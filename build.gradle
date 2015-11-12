@@ -76,8 +76,8 @@ plugindev {
 
 
 bintray {
-    user = project.properties['bintrayUser']
-    key = project.properties['bintrayKey']
+    user = System.getProperty('bintrayUser')
+    key = System.getProperty('bintrayKey')
     pkg.repo = 'com-blogspot-toomuchcoding'
 }
 if (project.hasProperty('coverage')) {
