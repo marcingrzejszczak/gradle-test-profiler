@@ -102,7 +102,7 @@ class BasicFuncSpec extends IntegrationSpec {
     }
 
     private void summaryReportContainsValuesFromModule(String moduleName, String reportText) {
-        assert reportText.contains(":$moduleName\tfoo.CalculatorTest\tshould_add_two_numbers")
-        assert reportText.contains(":$moduleName\tfoo.CalculatorTest\tshould_subtract_a_number_from_another")
+        assert reportText.contains(":$moduleName;foo.CalculatorTest;should_add_two_numbers")
+        assert reportText.contains(":$moduleName;foo.CalculatorTest;should_subtract_a_number_from_another")
     }
 }

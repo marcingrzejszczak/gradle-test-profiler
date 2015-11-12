@@ -21,7 +21,7 @@ class TestProfilerPluginExtension {
     /**
      * Separator of columns in the output report
      */
-    String separator = '\t'
+    String separator = ';'
 
     /**
      * Headers in the report
